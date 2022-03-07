@@ -40,7 +40,21 @@ class Schedule:
         self.schedule[semester[0]][semester[1]].append(course_code)
         self.courses_taken.append((course_code, semester))
 
-    # remove course
+    def remove_course(self, course_code):
+        """
+        """
+        is_course = False
+        for semester in schedule:
+            replacement_lst = []
+            for course in semester:
+                if course != course_code:
+                    replacement_lst.append(course)
+                else:
+                    is_course = True
+            if is_course:
+                semester = replacement_lst
+        
+        
 
 
 
