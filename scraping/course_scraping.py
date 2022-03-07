@@ -5,12 +5,11 @@ import sys
 import csv
 import process
 import pa2util
+import json
 
-# import prereqs_processing
-# import instructors_processing
-# import terms_processing
+def go(instructors_file=None, terms_file=None, prereqs_file=None, prereqs_json=None, notes_file=None, equivalent_file=None):
 
-def go(instructors_csv=None, terms_csv=None, prereqs_csv=None, notes_csv=None, equivalent_csv=None):
+    max_counts = {"ins_count": 0, "terms_count": 0, "prereqs_count": 0, "notes_count": 0, "equi_count": 0}
 
     starting_url = ("http://www.classes.cs.uchicago.edu/archive/2015/winter"
                     "/12200-1/new.collegecatalog.uchicago.edu/index.html")
@@ -21,25 +20,19 @@ def go(instructors_csv=None, terms_csv=None, prereqs_csv=None, notes_csv=None, e
     visited_links = [starting_url]
     count = 0
 
-    # Initializes lists containing scraped information
-    instructors_info = []
-    terms_info = []
-    prereqs_info = []
-    notes_info = []
-    equivalent_info = []
-
-    all_info = [instructors_info, terms_info, prereqs_info, notes_info, equivalent_info]
+    all_info = {"instructors_lst": [], "terms_lst": [], "prereqs_lst": [], "prereqs_dict": {}, "notes_lst": [], "equivalent_lst": []}
 
     while len(queue) > 0 and count < 1000:
-        analyze_link(queue[0], limiting_domain, visited_links, queue, all_info)
+        analyze_link(queue[0], limiting_domain, visited_links, queue, all_info, max_counts)
         count += 1
 
-    csv_info_dict = {instructors_csv: instructors_info, terms_csv: terms_info,
-    prereqs_csv: prereqs_info, notes_csv: notes_info, equivalent_csv: equivalent_info}
+    file_info_dict = {instructors_file: all_info["instructors_lst"], terms_file: all_info["terms_lst"],
+    prereqs_file: all_info["prereqs_lst"], prereqs_json: all_info["prereqs_dict"], notes_file: all_info["notes_lst"],
+    equivalent_file: all_info["equivalent_lst"]}
 
-    create_csvs(csv_info_dict, all_info)
+    create_files(file_info_dict, all_info)
 
-def analyze_link(url, limiting_domain, visited_links, queue, all_info):
+def analyze_link(url, limiting_domain, visited_links, queue, all_info, max_counts):
 
     # Loads in the url and creates the soup object.
     request = pa2util.get_request(url)
@@ -49,7 +42,7 @@ def analyze_link(url, limiting_domain, visited_links, queue, all_info):
     assert html_text != None, "pa2util.read_request(request) returned None"
     soup = bs4.BeautifulSoup(html_text, features="html.parser")
  
-    scrape_info(soup, all_info)
+    scrape_info(soup, all_info, max_counts)
 
     # Calls find_links() to add any of the unvisited links on this page to the queue.
     find_links(soup, url, limiting_domain, visited_links, queue)
@@ -57,7 +50,7 @@ def analyze_link(url, limiting_domain, visited_links, queue, all_info):
     # Deletes the current url from the front of the queue because we are done with it.
     del queue[0]
 
-def scrape_info(soup, all_info):
+def scrape_info(soup, all_info, max_counts):
 
     courses = soup.find_all('div', class_="courseblock main")
 
@@ -65,13 +58,13 @@ def scrape_info(soup, all_info):
         subsequences = find_sequence(course) 
            
         if subsequences == []:
-            pull_information(course, all_info)
+            pull_information(course, all_info, max_counts)
 
         else:
             for subsequence in subsequences:
-                pull_information(subsequence, all_info)
+                pull_information(subsequence, all_info, max_counts)
 
-def pull_information(course, all_info):
+def pull_information(course, all_info, max_counts):
 
     # Title Related Things------------------------------------------------
 
@@ -98,18 +91,32 @@ def pull_information(course, all_info):
     detail_text = course_block_detail[0].text
 
     instructors_text, instructors_data = pull_instructors(detail_text)
+    all_info["instructors_lst"].append((course_code, instructors_text, instructors_data))
+
+    if len(instructors_text) > max_counts["ins_count"]:
+        max_counts["ins_count"] = len(instructors_text)
+
     terms_text, terms_data = pull_terms(detail_text)
+    all_info["terms_lst"].append((course_code, terms_text, terms_data))
+    if len(terms_text) > max_counts["terms_count"]:
+        max_counts["terms_count"] = len(terms_text)
+
     prereqs_text, prereqs_data = pull_prereqs(detail_text)
+    all_info["prereqs_lst"].append((course_code, prereqs_text))
+    if prereqs_data not in [[], [[]]]:
+        all_info["prereqs_dict"][course_code] = prereqs_data
+    if len(prereqs_text) > max_counts["prereqs_count"]:
+        max_counts["prereqs_count"] = len(prereqs_text)
+
     notes_text = pull_notes(detail_text)
-    equivalent_text, equivalent_data = pull_equivalent(detail_text)
+    all_info["notes_lst"].append((course_code, notes_text))
+    if len(notes_text) > max_counts["notes_count"]:
+        max_counts["notes_count"] = len(notes_text)
 
-    # Appending the information we have found to the lists----------------
-
-    all_info[0].append((course_code, instructors_text, instructors_data))
-    all_info[1].append((course_code, terms_text, terms_data))
-    all_info[2].append((course_code, prereqs_text, prereqs_data))
-    all_info[3].append((course_code, notes_text))
-    all_info[4].append((course_code, equivalent_text, equivalent_data))
+    equivalent_text, equivalent_data = pull_equivalent(detail_text)        
+    all_info["equivalent_lst"].append((course_code, equivalent_text, equivalent_data))
+    if len(equivalent_text) > max_counts["equi_count"]:
+        max_counts["equi_count"] = len(equivalent_text)
 
 def find_links(soup, url, limiting_domain, visited_links, queue):
     '''
@@ -146,39 +153,51 @@ def find_links(soup, url, limiting_domain, visited_links, queue):
                         queue.append(link)
                         visited_links.append(link)
 
-def create_csvs(csv_info_dict, all_info):
+def create_files(file_info_dict, all_info):
 
-    for csv_to_create, csv_info in csv_info_dict.items():
-        if csv_to_create != None:
+    for file_to_create, file_info in file_info_dict.items():
+        if file_to_create != None:
+            print(file_to_create)
 
-            if csv_info in (all_info[0], all_info[1], all_info[4]):
+            if file_info in (all_info["instructors_lst"], all_info["terms_lst"], all_info["equivalent_lst"]):
 
-                with open(csv_to_create + "_data.csv", "w") as file:
+                with open(file_to_create + "_data.csv", "w") as file:
 
                     writer = csv.writer(file, delimiter=',')
 
-                    for course_code, _, course_data in csv_info:
+                    for course_code, _, course_data in file_info:
                         for datum in course_data:
                             writer.writerow([course_code, datum])
 
-                with open(csv_to_create + "_text.csv", "w") as file:
+                with open(file_to_create + "_text.csv", "w") as file:
 
                     writer = csv.writer(file, delimiter=',')
 
-                    for course_code, course_text, _ in csv_info:
+                    for course_code, course_text, _ in file_info:
                             writer.writerow([course_code, course_text])
 
-            elif csv_info == all_info[3]:
+            elif file_info == all_info["notes_lst"]:
 
-                with open(csv_to_create + "_text.csv", "w") as file:
+                with open(file_to_create + "_text.csv", "w") as file:
 
                     writer = csv.writer(file, delimiter=',')
 
-                    for course_code, course_text in csv_info:
+                    for course_code, course_text in file_info:
                             writer.writerow([course_code, course_text])
 
-            elif csv_info == all_info[2]:
-                pass
+            elif file_info == all_info["prereqs_lst"]:
+
+                with open(file_to_create + "_text.csv", "w") as file:
+
+                    writer = csv.writer(file, delimiter=',')
+
+                    for course_code, course_text in file_info:
+                            writer.writerow([course_code, course_text])
+
+            elif file_info == all_info["prereqs_dict"]:
+
+                with open(file_to_create + '_data.json', 'w') as file:
+                    json.dump(all_info["prereqs_dict"], file)
 
 
 #HELPERS------------------------------------------------------------------------------------------
@@ -219,9 +238,10 @@ def pull_prereqs(detail_text):
 
     if prereqs_bloc:
         prereqs_text = prereqs_bloc.group()
+        prereqs_text = prereqs_text.strip("\n")
         prereqs_data = process.prereqs(prereqs_text)
     else:
-        prereqs_text = ""
+        prereqs_text = "!NONE"
         prereqs_data = []
 
     return (prereqs_text, prereqs_data)

@@ -5,55 +5,43 @@ import urllib3
 import certifi
 import re
 import bs4
-
-'''
-To Do:
-
-mark with special thing if there is a sentence explaining a course
-
-store how many credits the major is
-
-'''
+import json
 
 
-websites_to_visit = ["http://collegecatalog.uchicago.edu/thecollege/economics/",
-"http://collegecatalog.uchicago.edu/thecollege/biologicalsciences/",
-"http://collegecatalog.uchicago.edu/thecollege/mathematics/",
-"http://collegecatalog.uchicago.edu/thecollege/politicalscience/",
-"http://collegecatalog.uchicago.edu/thecollege/publicpolicystudies/",
-"http://collegecatalog.uchicago.edu/thecollege/computerscience/",
-"http://collegecatalog.uchicago.edu/thecollege/physics/",
-"http://collegecatalog.uchicago.edu/thecollege/psychology/",
-"http://collegecatalog.uchicago.edu/thecollege/englishlanguageliterature/",
-"http://collegecatalog.uchicago.edu/thecollege/history/"]
+major_websites = {"Statistics": "http://collegecatalog.uchicago.edu/thecollege/statistics/",
+"Economics": "http://collegecatalog.uchicago.edu/thecollege/economics/",
+"Mathematics": "http://collegecatalog.uchicago.edu/thecollege/mathematics/",
+"Physics": "http://collegecatalog.uchicago.edu/thecollege/physics/",
+"Chemistry": "http://collegecatalog.uchicago.edu/thecollege/chemistry/"}
+
+def test():
+    with open('major_reqs_data.json') as file:
+        data = json.load(file)
+    return data
 
 def go():
-
-    count = 0
 
     major_data = []
     pre_lim_data = []
 
-    for website in websites_to_visit:
+    major_reqs_dict = {}
+
+    for major, website in major_websites.items():
+
+        count = 0
         
         major_tables = find_tables(website)
 
-        for table in major_tables:
+        major_reqs = {}
 
-            pre_lim_data.append(analyze_table(table))
-
-        for i in range(len(pre_lim_data)):
-            if i % 2 != 0:
-                complete_major = pre_lim_data[i-1] + pre_lim_data[i]
-                major_data.append(complete_major)
-            else:
-                pass
-
-        for major in major_data:
-            print(major)
+        for major_table in major_tables:
             count += 1
-            print("---------------------------------------")
-        print(count)
+            major_reqs["Major Option: " + str(count)] = major_table
+
+        major_reqs_dict[major] = major_reqs
+
+    with open('major_reqs_data2.json', 'w') as file:
+        json.dump(major_reqs_dict, file)
 
 
 def find_tables(website):
@@ -66,17 +54,23 @@ def find_tables(website):
 
     major_tables = []
 
+    major_table = []
+
     for table_tag in course_tables:
 
         table_title = table_tag.find("span", class_="courselistcomment")
         if table_title:
             table_title_text = table_title.text
 
-            if re.search("GENERAL EDUCATION|MAJOR", table_title_text):
-                major_tables.append(table_tag)
+            if re.search("GENERAL EDUCATION", table_title_text):
+                major_table = analyze_table(table_tag)
+
+            elif re.search("MAJOR", table_title_text):
+                major_table += analyze_table(table_tag)
+                major_tables.append(major_table)
+                major_table = []
 
     return major_tables
-
 
 def analyze_table(table):
 
@@ -92,7 +86,6 @@ def analyze_table(table):
 
         row_text = row.text
         row_text = row_text.replace("\xa0", " ")
-
         # Determines whether certain classes are substitutes
         if row.find("div", style="margin-left: 20px;") or re.search("^or ", row_text):
             is_indented = True
@@ -129,9 +122,8 @@ def analyze_table(table):
                 courses_to_add += req_courses
             elif len(req_courses) >= 1:
                 courses_to_add.append(req_courses)
-    
+
     return major_output
-        
     
 def calc_times_to_add(row_text):
     
@@ -165,10 +157,10 @@ def add_electives(row_text):
     #print(electives)
 
     return electives
-    
-
 
 def clean_courses(courses):
+
+    print(courses)
 
     for i, course in enumerate(courses):
 
@@ -182,12 +174,12 @@ def clean_courses(courses):
 
             if len(depts) == 1:
                 for number in numbers:
-                    fixed_courses.append(depts[0] + ' ' + number)
+                    fixed_courses.append([depts[0] + ' ' + number])
 
             else:
                 for j, dept in enumerate(depts):
-                    fixed_courses.append(dept + ' ' + numbers[j])
-
+                    fixed_courses.append([dept + ' ' + numbers[j]])
+            print(fixed_courses)
             courses[i] = fixed_courses
-
+    print(courses)
     return courses
