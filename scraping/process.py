@@ -116,10 +116,10 @@ def prereqs(prereq_text):
     # Calls the obtain_prereqs helper on each parcel of info
     output = recursion(processed_txt)
 
-    # Removes nested loops that are artificats from selection process
-    #clean_output = clean(output)
+    # Removes nested loops that are artifacts from selection process
+    output = clean(output)
 
-    return output #clean_output
+    return output
 
 def recursion(text_inputs):
 
@@ -141,12 +141,21 @@ def recursion(text_inputs):
     return output
 
 def clean(output):
-    # Source: stackoverflow.com/questions/26619381/clean-nested-lists-in-python
+
+    # for i, requirement in enumerate(output):
+
+    #     if isinstance(requirement, list):
+    #         if len(requirement) == 1 and isinstance(requirement[0], list):
+    #             output[i] = requirement[0]
+    #     else:
+    #         clean(requirement)
+                
+    # # Source: stackoverflow.com/questions/26619381/clean-nested-lists-in-python
     if isinstance(output, list):
         if len(output) == 1:
             return clean(output[0])
         return [clean(i) for i in output]
-    return output
+    return [output]
             
 def obtain_prereqs(item):
     '''

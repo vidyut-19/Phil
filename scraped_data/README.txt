@@ -17,6 +17,11 @@ Instructors
 
     instructor_emails.csv - [instructor, email address]
 
+prerequisites
+
+    prereqs1_text.csv - [course code, prereqs text scraped from CC]
+    prereqs2_data.json - json file with all courses that have a non-empty nested list-based structure
+
 Notes
 
     notes_text.csv - [course code, notes text scraped from course catalog]
