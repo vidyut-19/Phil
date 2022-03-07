@@ -10,16 +10,21 @@ known_prereqs = json.load(file_)
 
 class Schedule:
 
-    def __init__(self, majors, courses_taken, current_semester):
+    def __init__(self, major, courses_taken, current_semester):
 
+        # Basic info
         self.majors = majors
-
-        #self.major_requirements = ...
+        self.current_semester = current_semester
 
         # A list of tuples (course code, (Y, S))
         self.courses_taken = courses_taken
-        self.current_semester = current_semester
 
+        courses_acc_for = set()
+        for course_code, _ in self.courses_taken:
+            courses_acc_for.add(course_code)
+        self.courses_acc_for = courses_acc_for
+
+        # Building schedule
         schedule = []
 
         for i in range(4):
@@ -34,9 +39,10 @@ class Schedule:
 
     def add_course(self, course_code, semester):
 
-        # check if course is already in schedule
-        # 
+        if course_code in courses_acc_for:
+            pass
 
+        else:
         self.schedule[semester[0]][semester[1]].append(course_code)
         self.courses_taken.append((course_code, semester))
 
