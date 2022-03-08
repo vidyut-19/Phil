@@ -10,69 +10,114 @@ import re
 To Do
 
 working with _text.csv files
-- fxn that returns prereq text
-- fxn that returns notes text
-- fxn that returns equivalents text
-- fxn that returns terms offred text
-- fxn that returns an instructors email
+- fxn that returns prereq text [TICK]
+- fxn that returns notes text [TICK]
+- fxn that returns equivalents text [TICK]
+- fxn that returns terms offred text [TICK]
+- fxn that returns an instructors email [TICK]
 
 working with _data.csv files
-- fxn that confirms whether a course is offered in a certain term
-- fxn that confirms whether a course is an equivalent for another
-- fxn that returns the full names of the professors teaching
+- fxn that confirms whether a course is offered in a certain term [NOT DONE BC TERMS ARE WEIRD]
+- fxn that confirms whether a course is an equivalent for another [TICK]
+- fxn that returns the full names of the professors teaching [TICK] (done in professors_processed)
 
 '''
 
 # Return prereq text or null substitute
 def prerequisites(course):
     """
-    What are the prerequisites for this course?
-    COMPLETE THIS NOW THAT MAJOR SCRAPING IS DONE
+    fxn that returns prerequisites raw text
     """
 
-    connection = sqlite3.connect("scraping/scraped_data/data.db")
+    connection = sqlite3.connect("scraped_data/data.db")
     c = connection.cursor()
-    query = "SELECT x \nFROM x \n JOIN x \nWHERE "
+    query = "SELECT prereq_text\nFROM prereqs1_text\nWHERE course = ?"
     params = (course,)
     r = c.execute(query, params)
 
     return r.fetchall()
 
-def professors(course):
+
+def prerequisites_processed(course):
     """
-    Which Professor is teaching this course?
+    Formats the info about prerequisites appropriately.
     """
 
-    connection = sqlite3.connect("scraping/scraped_data/data.db")
+    results = prerequisites(course)
+
+    text = results[0][0]
+    string = "The course catalog says this about the prerequisites for " + course + ":\n"
+    print(string + text)
+
+
+def professors(course):
+    """
+    fxn that returns professor email raw text
+    """
+
+    connection = sqlite3.connect("scraped_data/data.db")
     c = connection.cursor()
-    query = "SELECT id2.professor_name, ie.professor_email, ifn.professor_full_name\nFROM ins_data2 as id2\nJOIN instructor_emails as ie ON id2.professor_name = ie.professor_name\nJOIN instructors_full_names as ifn on ifn.professor_name = id2.professor_name\nWHERE id2.course = ?" 
+    query = "SELECT ie.professor_email, ifn.professor_full_name\nFROM instructor_emails as ie\nJOIN instructors_full_names as ifn ON ifn.professor_name = ie.professor_name\nJOIN ins_data2 as id2 ON id2.professor_name = ifn.professor_name\nWHERE id2.course = ?"
     params = (course,)
     r = c.execute(query, params)
     
-    results = r.fetchall()
+    return r.fetchall()
 
-    if not bool(results):
-        return "Couldn't find professor info for that course"
+
+def professors_processed(course):
+    """
+    Formats the information about the instructors for a course appropriately.
+    """
+
+    results = professors(course)
+    results1 = set(results)
+
+    if len(results) == 1:
+        email, name = results[0]
+        if email != "UNKNOWN" and name != "Unknown":
+            string = "You can reach the instructor for " + course + ", " + name + ", at " + email + "."
+            print(string)
+        elif name != "Unknown":
+            string = "The instructor for " + course + " is " + name + "."
+            print(string)
     else:
-        if len(results) == 1:
-            if bool(full_name) and name != "Unkown" and email != "UNKNOWN":
-                return "The professor teaching this course is {}, you can reach them at {}".format(full_name, email)
-            else:
-                return "The professor teaching this course is {}, you can reach them at {}".format(name, email)
-        else:
-            return "check this edge case"
+        big_lst = []
+        small_lst = []
+        for email, name in results1:
+            if email != "UNKNOWN" and name != "Unknown":
+                big_lst.append((name, email))
+                small_lst.append(name)
+            elif name != "Unknown":
+                small_lst.append(name)
+        string = "The instructors for " + course + " are: " + ", ".join(small_lst) + "."
+        print(string)
+        if bool(big_lst):
+            string2 = "You can reach:"
+            for name, email in big_lst:
+                string2 += name + " at " + email + "/n"
+            print(string2 + ".")
 
 
 def equivalent(course):
     """
-    What are equivalent courses to this course?
+    fxn that returns raw equivalent courses text
     """
 
-    connection = sqlite3.connect("scraping/scraped_data/data.db")
+    connection = sqlite3.connect("scraped_data/data.db")
     c = connection.cursor()
     query = "SELECT equivalent_course\nFROM equivalent_data\nWHERE course = ?" 
     params = (course,)
     r = c.execute(query, params)
+    
+    return r.fetchall()
+
+
+def equivalent_processed(course):
+    """
+    formats equivalent course text appropriately
+    """
+    r = equivalent(course)
+
 
     string = "The equivalent courses to " + course + " are: "
     fixed = [course[0] for course in r]
@@ -81,40 +126,86 @@ def equivalent(course):
     return string
 
 
-def notes(course):
+def is_equivalent(course1, course2):
     """
-    What are necessary notes for this course?
     """
 
-    connection = sqlite3.connect("scraping/scraped_data/data.db")
+    rv = False
+
+    results1 = equivalent(course1)
+    results2 = equivalent(course2)
+
+    r1 = [course[0] for course in results1]
+    r2 = [course[0] for course in results2]
+
+    if course1 in r2:
+        rv = True
+    if course2 in r1:
+        rv = True
+    
+    return rv
+
+
+def notes(course):
+    """
+    fxn that returns notes raw text
+    """
+
+    connection = sqlite3.connect("scraped_data/data.db")
     c = connection.cursor()
     query = "SELECT note\nFROM notes_text\nWHERE course = ?" 
     params = (course,)
     r = c.execute(query, params)
-    results = r.fetchall()
-
-    if bool(results[0][0]):
-        return "Here's something you should know about this class: " + results[0][0].strip()
     
+    return r.fetchall()
+
+
+def notes_processed(course):
+    """
+    """
+
+    results = notes(course)
+    if bool(results) and bool(results[0][0]):
+        text = results[0][0].strip()
+        string = "Here's what the course catalog has to say about " + course + ":\n"
+        print(string + text)
+
 
 def terms(course):
     """
-    When is this course offered?
+    fxn that returns terms raw text
     """
 
-    connection = sqlite3.connect("scraping/scraped_data/data.db")
+    connection = sqlite3.connect("scraped_data/data.db")
     c = connection.cursor()
-    query = "SELECT term\nFROM terms_text\nWHERE course = ?" 
+    query = "SELECT term_text\nFROM terms_text\nWHERE course = ?" 
     params = (course,)
     r = c.execute(query, params)
  
-    results = r.fetchall()
+    return r.fetchall()
 
-    fixed = [term[0].strip() for term in results]
-    text = ", ".join(fixed)
 
+def terms_processed(course):
+    """
+    Formats 
+    """
+    #TALK WITH MAX
+    results = terms(course)
     if bool(results):
-        return "This course is offered in the following term(s): " + text
+        text = results[0][0]
+        if text != "Not offered in .":
+            print(course + " is offered in: " + text)
+
+def is_term_in(course, term):
+    """
+    """
+    #Q ABOUT HOW TO FORMAT TERMS
+    terms = terms(course)
+    if term in terms:
+        return True
+
+
+    
 
 #---------------------------------------------------------------------Max---------------------------------------------------------------
 
