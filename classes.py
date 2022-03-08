@@ -3,6 +3,7 @@
 import json
 import tabulate
 from tabulate import tabulate
+import task_processing
 
 file_ = open('scraped_data/prereqs2_data.json')
 
@@ -12,7 +13,7 @@ known_prereqs = json.load(file_)
 
 class Schedule:
 
-    def __init__(self, courses_taken, current_semester, major=None):
+    def __init__(self, courses_taken, major=None):
 
         # A list of tuples (course code, (Y, S))
         self.courses_taken = courses_taken
@@ -37,13 +38,26 @@ class Schedule:
 
         self.major = major
 
-        # Break out code in task processing to be able to give me a true false boolean
-        #self.major_complete = False
-        self.current_semester = current_semester
+        # Need to modify so this is called every time we add a course. Also make sure its never self.major=None
+        _, reqs_unsatisfied, _ = task_processing.major_reqs_left_processing(self.courses_acc_for, self.major)
+
+        if reqs_unsatisfied == []:
+            major_complete = True
+        else:
+            major_complete = False
+
+        self.major_complete = major_complete
 
     def add_course(self, course_code, semester, instructor="Not Specified"):
 
-        course_object = Course(course_code, semester, instructor)
+        _, unsatisfied_prereqs = task_processing.meet_course_prereqs_processing(self.courses_acc_for, course_code)
+
+        if unsatisfied_prereqs == []:
+            has_prereqs_warning = False
+        else:
+            has_prereqs_warning = True
+
+        course_object = Course(course_code, semester, has_prereqs_warning, instructor)
 
         # Add to schedule
         self.schedule[semester[0]][semester[1]].append(course_object)
@@ -81,13 +95,6 @@ class Schedule:
         max_courses = calc_max_courses(self.schedule)
 
         for i, year in enumerate(self.schedule):
-
-            # year_row = ["Year: " + str(i)]
-            # for k in range(max_courses):
-            #     year_row.append("")
-
-            # table.append(year_row)
-
             for j, semester in enumerate(year):
 
                 if j == 0:
@@ -114,15 +121,12 @@ class Schedule:
 
 class Course:
 
-    def __init__(self, course_code, semester_taking, instructor="Not specified"):
+    def __init__(self, course_code, semester_taking, has_prereqs_warning, instructor="Not specified"):
 
         self.course_code = course_code
         self.semester_taking = semester_taking
         self.instructor = instructor
-
-        # need to break up code in task processing to be able to give
-        # me a true false value
-        self.has_prereqs_warning = False
+        self.has_prereqs_warning = has_prereqs_warning
 
     def __repr__(self):
 
