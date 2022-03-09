@@ -1,6 +1,9 @@
 
 
 import json
+import tabulate
+from tabulate import tabulate
+import task_processing
 
 file_ = open('scraped_data/prereqs2_data.json')
 
@@ -10,11 +13,7 @@ known_prereqs = json.load(file_)
 
 class Schedule:
 
-    def __init__(self, major, courses_taken, current_semester):
-
-        # Basic info
-        self.majors = majors
-        self.current_semester = current_semester
+    def __init__(self, courses_taken, major=None):
 
         # A list of tuples (course code, (Y, S))
         self.courses_taken = courses_taken
@@ -33,62 +32,126 @@ class Schedule:
                 schedule[i].append([])
 
         for course_code, semester in courses_taken:
-            schedule[semester[0]][semester[1]].append(course_code)
+            schedule[semester[0]][semester[1]].append(Course(course_code, semester))
 
         self.schedule = schedule
 
-    def add_course(self, course_code, semester):
+        self.major = major
 
-        if course_code in courses_acc_for:
-            pass
+        # Need to modify so this is called every time we add a course. Also make sure its never self.major=None
+        _, reqs_unsatisfied, _ = task_processing.major_reqs_left_processing(self.courses_acc_for, self.major)
 
+        if reqs_unsatisfied == []:
+            major_complete = True
         else:
-        self.schedule[semester[0]][semester[1]].append(course_code)
-        self.courses_taken.append((course_code, semester))
+            major_complete = False
 
-    def remove_course(self, course_code):
-        """
-        """
-        is_course = False
-        for semester in schedule:
-            replacement_lst = []
-            for course in semester:
-                if course != course_code:
-                    replacement_lst.append(course)
+        self.major_complete = major_complete
+
+    def add_course(self, course_code, semester, instructor="Not Specified"):
+
+        _, unsatisfied_prereqs = task_processing.meet_course_prereqs_processing(self.courses_acc_for, course_code)
+
+        if unsatisfied_prereqs == []:
+            has_prereqs_warning = False
+        else:
+            has_prereqs_warning = True
+
+        course_object = Course(course_code, semester, has_prereqs_warning, instructor)
+
+        # Add to schedule
+        self.schedule[semester[0]][semester[1]].append(course_object)
+
+        # Update courses_acc_for
+        self.courses_acc_for.add(course_code)
+
+    def remove_course(self, rem_course_code):
+
+        # Remove from schedule
+        for year in self.schedule:
+            for semester in year:
+                for course_object in semester:
+                    if course_object.course_code == rem_course_code:
+                        semester.remove(course_object)
+                        break
+                break
+            break
+
+        # Update courses_acc_for
+        self.courses_acc_for.remove(rem_course_code)
+
+    def update_major(major):
+
+        self.major = major
+      
+
+    # Make this into a nice repr
+    def __repr__(self):
+
+        num_to_semester = {0: "Autumn", 1: "Winter", 2: "Spring", 3: "Summer"}
+
+        table = []
+
+        max_courses = calc_max_courses(self.schedule)
+
+        for i, year in enumerate(self.schedule):
+            for j, semester in enumerate(year):
+
+                if j == 0:
+                    semester_row = ["Year " + str(i + 1)]
                 else:
-                    is_course = True
-            if is_course:
-                semester = replacement_lst
-        
-        
+                    semester_row = [""]
+                
+                semester_row.append(num_to_semester[j])
+                for course_object in semester:
+                    semester_row.append(course_object)
 
+                while len(semester_row) < max_courses:
+                    semester_row.append("")
 
+                table.append(semester_row)
 
-    def draw_schedule(self):
+        headers = ["", ""]
+        for i in range(max_courses):
+            headers.append("Course " + str(i + 1))
 
-        print("--------------------------------------------------")
-        for i in range(4):
-            print("YEAR: ", i+1)
-            for j in range(4):
-                print("--------------------------------------------------")
-                print("SEMESTER: ", j+1)
-                print(self.schedule[i][j])
-        print("--------------------------------------------------")
+        return (tabulate(table, headers, tablefmt="grid"))
 
 # Course Class
 
 class Course:
 
-    def __init__(self, course_code, semester_taking, instructor):
+    def __init__(self, course_code, semester_taking, has_prereqs_warning, instructor="Not specified"):
 
         self.course_code = course_code
         self.semester_taking = semester_taking
         self.instructor = instructor
+        self.has_prereqs_warning = has_prereqs_warning
 
-        if course_code in known_prereqs.keys():
-            prereqs = known_prereqs[course_code]
+    def __repr__(self):
+
+        str_repr = self.course_code + "\n"
+
+        instructor_str = self.instructor
+        if len(self.instructor) > 20:
+            instructor_str = instructor_str[:17] + "..."
+        str_repr += instructor_str + "\n"
+
+        if self.has_prereqs_warning:
+            str_repr += "(Prereqs!)\n"
         else:
-            prereqs = []
+            str_repr += "---\n"
 
-        self.prereqs = prereqs
-        
+        return str_repr
+
+
+def calc_max_courses(schedule):
+
+    max_courses = 0
+
+    for year in schedule:
+        for semester in year:
+            if len(semester) > max_courses:
+                max_courses = len(semester)
+
+    return max_courses
