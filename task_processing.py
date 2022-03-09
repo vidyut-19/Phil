@@ -17,13 +17,12 @@ working with _text.csv files
 - fxn that returns an instructors email [TICK]
 
 working with _data.csv files
-- fxn that confirms whether a course is offered in a certain term [NOT DONE BC TERMS ARE WEIRD]
+- fxn that confirms whether a course is offered in a certain term [TICK]
 - fxn that confirms whether a course is an equivalent for another [TICK]
 - fxn that returns the full names of the professors teaching [TICK] (done in professors_processed)
 
 '''
 
-# Return prereq text or null substitute
 def prerequisites(course):
     """
     fxn that returns prerequisites raw text
@@ -45,9 +44,15 @@ def prerequisites_processed(course):
 
     results = prerequisites(course)
 
-    text = results[0][0]
-    string = "The course catalog says this about the prerequisites for " + course + ":\n"
-    print(string + text)
+    if bool(results):
+        text = results[0][0]
+        if text == "!NONE" or text == "undefined" or text == "prereq_text":
+            print("The course catalog doesn't list any prerequisites for " + course + ".")
+        else:
+            string = "The course catalog says this about the prerequisites for " + course + ":\n"
+            print(string + text)
+    else:
+        print("I'm Sorry, I couldn't recognize the course code: " + course + ".")
 
 
 def professors(course):
@@ -58,6 +63,7 @@ def professors(course):
     connection = sqlite3.connect("scraped_data/data.db")
     c = connection.cursor()
     query = "SELECT ie.professor_email, ifn.professor_full_name\nFROM instructor_emails as ie\nJOIN instructors_full_names as ifn ON ifn.professor_name = ie.professor_name\nJOIN ins_data2 as id2 ON id2.professor_name = ifn.professor_name\nWHERE id2.course = ?"
+    
     params = (course,)
     r = c.execute(query, params)
     
@@ -72,14 +78,21 @@ def professors_processed(course):
     results = professors(course)
     results1 = set(results)
 
-    if len(results) == 1:
+    did_it_print = False
+
+    if not bool(results):
+        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        did_it_print = True
+    elif len(results1) == 1:
         email, name = results[0]
         if email != "UNKNOWN" and name != "Unknown":
             string = "You can reach the instructor for " + course + ", " + name + ", at " + email + "."
             print(string)
+            did_it_print = True
         elif name != "Unknown":
             string = "The instructor for " + course + " is " + name + "."
             print(string)
+            did_it_print = True
     else:
         big_lst = []
         small_lst = []
@@ -91,11 +104,15 @@ def professors_processed(course):
                 small_lst.append(name)
         string = "The instructors for " + course + " are: " + ", ".join(small_lst) + "."
         print(string)
+        did_it_print = True
         if bool(big_lst):
-            string2 = "You can reach:"
+            string2 = "You can reach: "
             for name, email in big_lst:
-                string2 += name + " at " + email + "/n"
+                string2 += name + " at " + email + "\n"
             print(string2 + ".")
+            did_it_print = True
+    if not did_it_print:
+        print("I'm sorry, I'm not sure who the instructors for " + course + " are.")
 
 
 def equivalent(course):
@@ -116,18 +133,24 @@ def equivalent_processed(course):
     """
     formats equivalent course text appropriately
     """
-    r = equivalent(course)
 
+    results = equivalent(course)
 
-    string = "The equivalent courses to " + course + " are: "
-    fixed = [course[0] for course in r]
-    string += ", ".join(fixed)
-
-    return string
+    if bool(results):
+        string = "The equivalent courses to " + course + " are: "
+        fixed = [course[0] for course in results]
+        string += ", ".join(fixed)
+        print(string)
+    elif not bool(notes(course)):
+        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+    else:
+        print("It doesn't look like the course catalog lists any equivalent courses for " + course + ".")
 
 
 def is_equivalent(course1, course2):
     """
+    fxn that returns True if the two input courses are equivalent to each
+    other, False otherwise
     """
 
     rv = False
@@ -162,13 +185,19 @@ def notes(course):
 
 def notes_processed(course):
     """
+    Returns the notes about a course formatted appropriately
     """
 
     results = notes(course)
+    
     if bool(results) and bool(results[0][0]):
         text = results[0][0].strip()
         string = "Here's what the course catalog has to say about " + course + ":\n"
         print(string + text)
+    elif bool(results):
+        print("It doesn't look like the course catalog has any notes about " + course + ".")
+    else:
+        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
 
 
 def terms(course):
@@ -178,7 +207,7 @@ def terms(course):
 
     connection = sqlite3.connect("scraped_data/data.db")
     c = connection.cursor()
-    query = "SELECT term_text\nFROM terms_text\nWHERE course = ?" 
+    query = "SELECT term_data\nFROM terms_data\nWHERE course = ?"
     params = (course,)
     r = c.execute(query, params)
  
@@ -187,25 +216,35 @@ def terms(course):
 
 def terms_processed(course):
     """
-    Formats 
+    Formats terms that a course is offered in appropriately
     """
-    #TALK WITH MAX
+
     results = terms(course)
+
     if bool(results):
-        text = results[0][0]
-        if text != "Not offered in .":
-            print(course + " is offered in: " + text)
+        term = results[0][0]
+        lst = ["Autumn", "Winter", "Spring", "Summer"]
+        if term in lst:
+            print(course + " is offered in " + term + ".")
+    elif not bool(notes(course)):
+        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+    else:
+        print("I'm afraid I don't know exactly when " + course + " is offered.")
+
 
 def is_term_in(course, term):
     """
+    fxn that returns True if the input course is offered in the input term,
+    False otherwise
     """
-    #Q ABOUT HOW TO FORMAT TERMS
-    terms = terms(course)
-    if term in terms:
+
+    results = terms(course)
+    term1 = results[0][0]
+    if term == term1:
         return True
+    else:
+        return False
 
-
-    
 
 #---------------------------------------------------------------------Max---------------------------------------------------------------
 
