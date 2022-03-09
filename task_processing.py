@@ -23,13 +23,14 @@ working with _data.csv files
 
 '''
 
+connection = sqlite3.connect("scraped_data/data.db")
+c = connection.cursor()
+
 def prerequisites(course):
     """
     fxn that returns prerequisites raw text
     """
 
-    connection = sqlite3.connect("scraped_data/data.db")
-    c = connection.cursor()
     query = "SELECT prereq_text\nFROM prereqs1_text\nWHERE course = ?"
     params = (course,)
     r = c.execute(query, params)
@@ -47,19 +48,18 @@ def prerequisites_processed(course):
     if bool(results):
         text = results[0][0]
         if text == "!NONE" or text == "undefined" or text == "prereq_text":
-            print("The course catalog doesn't list any prerequisites for " + course + ".")
+            return ("The course catalog doesn't list any prerequisites for " + course + ".")
         else:
             string = "The course catalog says this about the prerequisites for " + course + ":\n"
-            print(string + text)
+            return (string + text)
     else:
-        print("I'm Sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
 
 
 def professors(course):
     """
     fxn that returns professor email raw text
     """
-    courses_confirm = input("So you took")
     query = "SELECT ie.professor_email, ifn.professor_full_name\nFROM instructor_emails as ie\nJOIN instructors_full_names as ifn ON ifn.professor_name = ie.professor_name\nJOIN ins_data2 as id2 ON id2.professor_name = ifn.professor_name\nWHERE id2.course = ?"
     
     params = (course,)
@@ -138,11 +138,11 @@ def equivalent_processed(course):
         string = "The equivalent courses to " + course + " are: "
         fixed = [course[0] for course in results]
         string += ", ".join(fixed)
-        print(string)
+        return (string)
     elif not bool(notes(course)):
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
     else:
-        print("It doesn't look like the course catalog lists any equivalent courses for " + course + ".")
+        return ("It doesn't look like the course catalog lists any equivalent courses for " + course + ".")
 
 
 def is_equivalent(course1, course2):
@@ -165,6 +165,19 @@ def is_equivalent(course1, course2):
         rv = True
     
     return rv
+
+def is_equivalent_processed(course1, course2):
+
+    if course1 == course2:
+        return ("Nice try. Those are the same course! You're not fooling me that easily.")
+
+    are_equi = is_equivalent(course1, course2)
+
+    if are_equi:
+        return (("%s and %s are equivalent courses!") % (course1, course2))
+
+    else:
+        return (("%s and %s are not equivalent courses.") % (course1, course2))
 
 
 def notes(course):
@@ -191,11 +204,11 @@ def notes_processed(course):
     if bool(results) and bool(results[0][0]):
         text = results[0][0].strip()
         string = "Here's what the course catalog has to say about " + course + ":\n"
-        print(string + text)
+        return (string + text)
     elif bool(results):
-        print("It doesn't look like the course catalog has any notes about " + course + ".")
+        return ("It doesn't look like the course catalog has any notes about " + course + ".")
     else:
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
 
 
 def terms(course):
@@ -223,11 +236,11 @@ def terms_processed(course):
         term = results[0][0]
         lst = ["Autumn", "Winter", "Spring", "Summer"]
         if term in lst:
-            print(course + " is offered in " + term + ".")
+            return (course + " is offered in " + term + ".")
     elif not bool(notes(course)):
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
     else:
-        print("I'm afraid I don't know exactly when " + course + " is offered.")
+        return ("I'm afraid I don't know exactly when " + course + " is offered.")
 
 
 def is_term_in(course, term):
