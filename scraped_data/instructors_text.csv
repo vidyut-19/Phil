@@ -825,8 +825,13 @@ CMSC 11000,W. Sterner
 CMSC 11100,Unknown
 CMSC 11710,J. Simon
 CMSC 12100,A. Rogers
+<<<<<<< HEAD
 CMSC 12200,"A. Rogers, M. Wachs"
 CMSC 12300,Unknown
+=======
+CMSC 12200,A. Rogers, M. Wachs
+CMSC 12300,M. Wachs
+>>>>>>> b0636078f4e30ec997087eb1d61a8cc7bbb50b2c
 CMSC 15100,"J. Reppy (Autumn), A. Shaw (Autumn)"
 CMSC 15200,A. Shaw (Winter)
 CMSC 15400,Unknown
