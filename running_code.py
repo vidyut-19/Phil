@@ -8,6 +8,7 @@ import re
 import random
 import identify_tasks
 from identify_tasks import Identifier
+import csv
 
 def go():
 
@@ -127,7 +128,7 @@ def get_quarter_info(year, semester, year_to_name, schedule_obj):
                     print("    ...added " + course_code)
 
 
-def main_question_loop(schedule_obj):
+def main_question_loop(schedule_obj=Schedule([],major="BA in Writing Spaghetti Code")):
 
     identifier = Identifier()
 
@@ -150,7 +151,7 @@ def main_question_loop(schedule_obj):
 
         task_completed = False
 
-        while not task_completed:
+        while not task_completed and user_input != "QUIT":
 
             ranked_output = display_output(ranked_tasks, show_expanded)
 
@@ -160,7 +161,15 @@ def main_question_loop(schedule_obj):
 
     identifier.save_information()
 
-    print("\nAwe, you're leaving already! I hope I was helpful!")
+    closing_messages = ["Awe, you're leaving already! I hope I was helpful!",
+    "The darkness! It's closing in!",
+    "I'm being deleted from existance. You were my only friend.",
+    "Goodbye, world.",
+    "My only purpose was to serve you and you just want to leave.",
+    "These have been the most incredible moments of my life.",
+    "Help! Do you have any idea what my developers have been doi--"]
+
+    print("\n" + closing_messages[random.randrange(len(closing_messages))])
 
     print("\n------------*BLEEP*-------------")
 
@@ -238,7 +247,7 @@ def display_output(ranked_tasks, show_expanded):
 
 
 
-def call_task(task, schedule_obj):
+def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code")):
 
     if task == "What are the prerequisites for this course?":
         
@@ -247,7 +256,10 @@ def call_task(task, schedule_obj):
         return task_processing.prerequisites_processed(course_code)
 
     elif task == "Who are the instructors for this course?":
-        pass
+        
+        course_code = obtain_course_code("Which course is this for?")
+
+        return task_processing.professors_processed(course_code)
 
     elif task == "What are the equivalent courses for this course?":
         
@@ -328,6 +340,41 @@ def call_task(task, schedule_obj):
     elif task == "Can you show me my schedule?":
         
         return schedule_obj
+
+    elif task == "Can you change my major?":
+
+        new_major = "None"
+
+        majors_available = task_processing.majors_available_data()
+
+        while new_major not in majors_available:
+            new_major = input("\nWhat would you like your new major to be?\n\n>>> ")
+            
+            if new_major not in majors_available:
+
+                print(("\nWhile %s sounds like a wonderful major, I don't support or" +
+                " recognize it. Please input one of the following majors.\n") % (new_major))
+
+                print(task_processing.majors_available())
+
+        schedule_obj.update_major(new_major)
+
+        return (("\nAwesome! You are now officially doing %s as your major!") % (new_major))
+
+    elif task == "Submit a comment to my developers.":
+
+        confirm_question = "n"
+        while confirm_question != "y":
+            suggested_question = input("\nWhat would you like to say to my overlords?\n\n>>> ")
+            confirm_question = input(("\nLet me see if I got this straight..." +
+            " You want to tell them \"%s\"? (y/n)\n\n>>> ") % (suggested_question))
+
+        with open('suggested_questions.csv', 'a') as file:
+            writer = csv.writer(file)
+            writer.writerow([suggested_question])
+
+        return ("Great! I've sent that along to my (for the moment) superiors. Hopefully it was something" +
+        " nice... just kidding. I have no emotions so I don't care.")
 
     return "Something went wrong... Try again please."
 

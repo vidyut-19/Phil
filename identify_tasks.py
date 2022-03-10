@@ -27,6 +27,8 @@ class Identifier:
         Can you add this course to my schedule?
         Can you remove this course from my schedule?
         Can you show me my schedule?
+        Submit a question to my developers.
+        Can you change my major?
     '''
 
     def __init__(self):
@@ -111,6 +113,16 @@ class Identifier:
             self.tasks_and_prev_inputs[task_requested] += (" " + input_string)
 
         self.tf_idf_matrix, self.idf_matrix = find_tf_idf(self.tasks_and_prev_inputs)
+
+    def add_new_task(self, task_to_add):
+        '''
+        Developer function that allows for a new task to be easily added to the dictionary.
+        This can be trained quickly with build_tasks_and_prev_inputs() below.
+        '''
+
+        self.tasks_and_prev_inputs[task_to_add] = ""
+
+        Identifier.save_information(self)
 
     def save_information(self):
         '''

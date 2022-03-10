@@ -38,15 +38,6 @@ class Schedule:
 
         self.major = major
 
-        # Need to modify so this is called every time we add a course. Also make sure its never self.major=None
-        _, reqs_unsatisfied, _ = task_processing.major_reqs_left_processing(self.courses_acc_for, self.major)
-
-        if reqs_unsatisfied == []:
-            major_complete = True
-        else:
-            major_complete = False
-
-        self.major_complete = major_complete
 
     def add_course(self, course_code, semester, instructor="Not Specified"):
 
@@ -80,7 +71,7 @@ class Schedule:
         # Update courses_acc_for
         self.courses_acc_for.remove(rem_course_code)
 
-    def update_major(major):
+    def update_major(self, major):
 
         self.major = major
       
