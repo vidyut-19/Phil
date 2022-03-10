@@ -56,6 +56,7 @@ def score(question):
 def prerequisites(course):
     """
     What are the prerequisites for this course?
+    COMPLETE THIS NOW THAT MAJOR SCRAPING IS DONE
     """
 
     connection = sqlite3.connect("scraping/scraped_data/data.db")
@@ -94,7 +95,7 @@ def professors(course):
 
 def equivalent(course):
     """
-    Which Professor is teaching this course?
+    What are equivalent courses to this course?
     """
 
     connection = sqlite3.connect("scraping/scraped_data/data.db")
@@ -106,7 +107,7 @@ def equivalent(course):
     string = "The equivalent courses to " + course + " are: "
     fixed = [course[0] for course in r]
     string += ", ".join(fixed)
-    
+
     return string
 
 
@@ -144,3 +145,16 @@ def terms(course):
 
     if bool(results):
         return "This course is offered in the following terms: " + text
+
+def get_class_info(course):
+    """
+    retrieve information for constructing course object with info regarding
+    instructor, semesters offered, prereqs
+    """
+    connection = sqlite3.connect("scraping/scraped_data/data.db")
+    c = connection.cursor()
+    query = "SELECT term\nFROM terms_text\nWHERE course = ?" 
+    params = (course,)
+    r = c.execute(query, params)
+ 
+    results = r.fetchall()

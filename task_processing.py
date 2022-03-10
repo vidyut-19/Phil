@@ -40,13 +40,14 @@ working with _data.csv files
 
 '''
 
+connection = sqlite3.connect("scraped_data/data.db")
+c = connection.cursor()
+
 def prerequisites(course):
     """
     fxn that returns prerequisites raw text
     """
 
-    connection = sqlite3.connect("scraped_data/data.db")
-    c = connection.cursor()
     query = "SELECT prereq_text\nFROM prereqs1_text\nWHERE course = ?"
     params = (course,)
     r = c.execute(query, params)
@@ -64,22 +65,19 @@ def prerequisites_processed(course):
     if bool(results):
         text = results[0][0]
         if text == "!NONE" or text == "undefined" or text == "prereq_text":
-            print("The course catalog doesn't list any prerequisites for " + course + ".")
+            return ("The course catalog doesn't list any prerequisites for " + course + ".")
         else:
             string = "The course catalog says this about the prerequisites for " + course + ":\n"
-            print(string + text)
+            return (string + text)
     else:
-        print("I'm Sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
 
 
 def professors(course):
     """
     fxn that returns professor email raw text
     """
-
-    connection = sqlite3.connect("scraped_data/data.db")
-    c = connection.cursor()
-    query = "SELECT ie.professor_email, ifn.professor_full_name\nFROM instructor_emails as ie\nJOIN instructors_full_names as ifn ON ifn.professor_name = ie.professor_name\nJOIN ins_data2 as id2 ON id2.professor_name = ifn.professor_name\nWHERE id2.course = ?"
+    query = "SELECT ie.professor_email, ifn.professor_full_name\nFROM instructor_emails as ie\nJOIN instructors_full_names as ifn ON ifn.professor_full_name = ie.professor_name\nJOIN ins_data2 as id2 ON id2.professor_name = ifn.professor_name\nWHERE id2.course = ?"
     
     params = (course,)
     r = c.execute(query, params)
@@ -98,18 +96,15 @@ def professors_processed(course):
     did_it_print = False
 
     if not bool(results):
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
-        did_it_print = True
+        return "I'm sorry, I couldn't recognize the course code: " + course + "."
     elif len(results1) == 1:
         email, name = results[0]
         if email != "UNKNOWN" and name != "Unknown":
             string = "You can reach the instructor for " + course + ", " + name + ", at " + email + "."
-            print(string)
-            did_it_print = True
+            return string
         elif name != "Unknown":
             string = "The instructor for " + course + " is " + name + "."
-            print(string)
-            did_it_print = True
+            return string
     else:
         big_lst = []
         small_lst = []
@@ -120,16 +115,18 @@ def professors_processed(course):
             elif name != "Unknown":
                 small_lst.append(name)
         string = "The instructors for " + course + " are: " + ", ".join(small_lst) + "."
-        print(string)
-        did_it_print = True
-        if bool(big_lst):
-            string2 = "You can reach: "
+        if len(big_lst) == 1:
+            name, email = big_lst[0]
+            return string + " You can reach " + name + " at " + email + "."
+        elif len(big_lst) > 1:
+            lst = []
             for name, email in big_lst:
-                string2 += name + " at " + email + "\n"
-            print(string2 + ".")
-            did_it_print = True
-    if not did_it_print:
-        print("I'm sorry, I'm not sure who the instructors for " + course + " are.")
+                lst.append(name + " at " + email)
+            string2 = ", ".join(lst)
+            return string + " You can reach " + string2 + "."
+            
+
+    return "I'm sorry, I'm not sure who the instructors for " + course + " are."
 
 
 def equivalent(course):
@@ -157,11 +154,11 @@ def equivalent_processed(course):
         string = "The equivalent courses to " + course + " are: "
         fixed = [course[0] for course in results]
         string += ", ".join(fixed)
-        print(string)
+        return (string)
     elif not bool(notes(course)):
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
     else:
-        print("It doesn't look like the course catalog lists any equivalent courses for " + course + ".")
+        return ("It doesn't look like the course catalog lists any equivalent courses for " + course + ".")
 
 
 def is_equivalent(course1, course2):
@@ -184,6 +181,19 @@ def is_equivalent(course1, course2):
         rv = True
     
     return rv
+
+def is_equivalent_processed(course1, course2):
+
+    if course1 == course2:
+        return ("Nice try. Those are the same course! You're not fooling me that easily.")
+
+    are_equi = is_equivalent(course1, course2)
+
+    if are_equi:
+        return (("%s and %s are equivalent courses!") % (course1, course2))
+
+    else:
+        return (("%s and %s are not equivalent courses.") % (course1, course2))
 
 
 def notes(course):
@@ -210,11 +220,11 @@ def notes_processed(course):
     if bool(results) and bool(results[0][0]):
         text = results[0][0].strip()
         string = "Here's what the course catalog has to say about " + course + ":\n"
-        print(string + text)
+        return (string + text)
     elif bool(results):
-        print("It doesn't look like the course catalog has any notes about " + course + ".")
+        return ("It doesn't look like the course catalog has any notes about " + course + ".")
     else:
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
 
 
 def terms(course):
@@ -242,11 +252,11 @@ def terms_processed(course):
         term = results[0][0]
         lst = ["Autumn", "Winter", "Spring", "Summer"]
         if term in lst:
-            print(course + " is offered in " + term + ".")
+            return (course + " is offered in " + term + ".")
     elif not bool(notes(course)):
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
     else:
-        print("I'm afraid I don't know exactly when " + course + " is offered.")
+        return ("I'm afraid I don't know exactly when " + course + " is offered.")
 
 
 def is_term_in(course, term):
@@ -264,6 +274,21 @@ def is_term_in(course, term):
 
 
 #---------------------------------------------------------------------Max---------------------------------------------------------------
+
+def majors_available_data():
+
+    with open('scraped_data/major_reqs_data.json') as file:
+        major_info = json.load(file)
+
+    majors_available = set()
+
+    for department, majors in major_info.items():
+        for major in majors:
+            majors_available.add(major)
+
+    return majors_available
+
+
 
 def majors_available():
     '''
@@ -283,7 +308,7 @@ def majors_available():
 
     return rv
 
-def major_reqs_left(courses_taken, major):
+def major_reqs_left_processing(courses_taken, major):
     '''
     courses_taken is a set
     major is a string
@@ -314,6 +339,13 @@ def major_reqs_left(courses_taken, major):
         if item == "!ELEC":
             elec_count += 1
 
+    return reqs_satisfied, reqs_unsatisfied, elec_count
+
+    
+def major_reqs_left_to_text(courses_taken, major):
+
+    reqs_satisfied, reqs_unsatisfied, elec_count = major_reqs_left_processing(courses_taken, major)
+
     output_text = ("As far as I understand it, you have met %d requirements, and have %d more to go " +
     "of which %d are electives.\nYou should check whether you meet the electives online, " +
     "they're a little too complicated for me to understand.") % (len(reqs_satisfied), len(reqs_unsatisfied), elec_count)
@@ -337,7 +369,7 @@ def major_reqs_left(courses_taken, major):
 
     return output_text
     
-def meet_course_prereqs(courses_taken, course_code):
+def meet_course_prereqs_processing(courses_taken, course_code):
     '''
     Determines whether a student has satisfied all the requirements to be able
     to enroll in a course.
@@ -356,7 +388,7 @@ def meet_course_prereqs(courses_taken, course_code):
     if course_code in prereqs_info:
         prereqs = prereqs_info[course_code]
     else:
-        return "This course has no prerequisites so you already meet them all!"
+        return [], []
 
     reqs_satisfied = []
     reqs_unsatisfied = []
@@ -369,6 +401,12 @@ def meet_course_prereqs(courses_taken, course_code):
             reqs_satisfied.append(satisfier)
         else:
             reqs_unsatisfied.append(req)
+
+    return reqs_satisfied, reqs_unsatisfied
+
+def meet_course_prereqs_text(courses_taken, course_code):
+
+    reqs_satisfied, reqs_unsatisfied = meet_course_prereqs_processing(courses_taken, course_code)
 
     output_text = ("As far as I understand it, you have met %d requirement(s), and have %d more to go.") % (len(reqs_satisfied), len(reqs_unsatisfied))
 
