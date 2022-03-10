@@ -60,7 +60,7 @@ def professors(course):
     """
     fxn that returns professor email raw text
     """
-    query = "SELECT ie.professor_email, ifn.professor_full_name\nFROM instructor_emails as ie\nJOIN instructors_full_names as ifn ON ifn.professor_name = ie.professor_name\nJOIN ins_data2 as id2 ON id2.professor_name = ifn.professor_name\nWHERE id2.course = ?"
+    query = "SELECT ie.professor_email, ifn.professor_full_name\nFROM instructor_emails as ie\nJOIN instructors_full_names as ifn ON ifn.professor_full_name = ie.professor_name\nJOIN ins_data2 as id2 ON id2.professor_name = ifn.professor_name\nWHERE id2.course = ?"
     
     params = (course,)
     r = c.execute(query, params)
@@ -79,18 +79,15 @@ def professors_processed(course):
     did_it_print = False
 
     if not bool(results):
-        print("I'm sorry, I couldn't recognize the course code: " + course + ".")
-        did_it_print = True
+        return "I'm sorry, I couldn't recognize the course code: " + course + "."
     elif len(results1) == 1:
         email, name = results[0]
         if email != "UNKNOWN" and name != "Unknown":
             string = "You can reach the instructor for " + course + ", " + name + ", at " + email + "."
-            print(string)
-            did_it_print = True
+            return string
         elif name != "Unknown":
             string = "The instructor for " + course + " is " + name + "."
-            print(string)
-            did_it_print = True
+            return string
     else:
         big_lst = []
         small_lst = []
@@ -101,16 +98,18 @@ def professors_processed(course):
             elif name != "Unknown":
                 small_lst.append(name)
         string = "The instructors for " + course + " are: " + ", ".join(small_lst) + "."
-        print(string)
-        did_it_print = True
-        if bool(big_lst):
-            string2 = "You can reach: "
+        if len(big_lst) == 1:
+            name, email = big_lst[0]
+            return string + " You can reach " + name + " at " + email + "."
+        elif len(big_lst) > 1:
+            lst = []
             for name, email in big_lst:
-                string2 += name + " at " + email + "\n"
-            print(string2 + ".")
-            did_it_print = True
-    if not did_it_print:
-        print("I'm sorry, I'm not sure who the instructors for " + course + " are.")
+                lst.append(name + " at " + email)
+            string2 = ", ".join(lst)
+            return string + " You can reach " + string2 + "."
+            
+
+    return "I'm sorry, I'm not sure who the instructors for " + course + " are."
 
 
 def equivalent(course):
