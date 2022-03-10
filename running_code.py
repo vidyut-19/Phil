@@ -256,7 +256,10 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
         return task_processing.prerequisites_processed(course_code)
 
     elif task == "Who are the instructors for this course?":
-        pass
+        
+        course_code = obtain_course_code("Which course is this for?")
+
+        return task_processing.professors_processed(course_code)
 
     elif task == "What are the equivalent courses for this course?":
         
