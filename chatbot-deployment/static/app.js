@@ -1,9 +1,10 @@
+
 class Chatbox {
-    constructor() {
+    constructor(openButton, chatBox, sendButton) {
         this.args = {
-            openButton: document.querySelector('chatbox__button'),
-            chatBox: document.querySelector('.chatbox__support'),
-            sendButton: document.querySelector('.send__button')
+            openButton:openButton, 
+            chatBox: chatBox ,
+            sendButton: sendButton
         }
 
         this.state = false;
@@ -56,18 +57,13 @@ class Chatbox {
             },
 
         })
-        .then(r => r.json())
-        .then(r => {
-            let msg2 = {name: "Phil", message: r.answer };
-            this.messages.push(msg2);
-            this.updateChatText(chatbox)
-            textField.value = ''
-      }).catch((error) => {
-          console.error('Error:', error);
+        //.then(r => r.json())
+        .then(r => {this.args.sendButton
+
           this.updateChatText(chatbox)
+          console.log('request returned')
           textField.value = ''
       });
-    
     
     }
 
@@ -76,11 +72,13 @@ class Chatbox {
         this.messages.slice().reverse().forEach(function(item, ) {
             if (item.name === "Phil")
             {
-                html += '<div class="messages__item messages__item--visitor">' + item.message + '</div'
+                html += '<div class="messages__item messages__item--visitor">' + item.message + '</div>'
+            console.log('I am the visitor')
             }
             else
             {
-                html += '<div class="messages__item messages__item--operator">' + item.message + '</div'
+                html += '<div class="messages__item messages__item--operator">' + item.message + '</div>'
+            console.log('I am the operator')
             }
         }
     );
@@ -95,7 +93,11 @@ class Chatbox {
 
 
 }
-
-
-const chatbox = new Chatbox();
-chatbox.display();
+openButton = document.getElementById('chatbox_button');
+console.log(openButton)
+chatBox = document.querySelector('.chatbox__support')
+console.log(chatBox)
+sendButton = document.querySelector('.send__button')
+console.log(sendButton)
+const chatbox = new Chatbox(openButton, chatBox, sendButton);
+//chatbox.display();

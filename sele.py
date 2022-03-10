@@ -5,15 +5,22 @@ from selenium.webdriver.support import expected_conditions as EC
 import random
 import salients
 import json
+import nltk
+from nltk.tokenize import sent_tokenize
+from nltk.tokenize import word_tokenize
+nltk.download('stopwords')
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
+analyzer = SentimentIntensityAnalyzer()
+
 password = 'Boeing#777X2019'
 options = webdriver.FirefoxOptions()
 options.headless = True
 
-def get_course_eval(dept_name, course_code, aspect, n ,k):
+def get_course_eval(dept_name, course_code):
     '''
 
     '''
-    driver = webdriver.Firefox(executable_path = '/home/vidyut/cmsc12200-win-22-vidyut/project/geckodriver')
+    driver = webdriver.Firefox(executable_path = '/home/vidyut/CS122-Group-Project/geckodriver')
     driver.get(f'https://coursefeedback.uchicago.edu/?CourseDepartment={dept_name}&CourseNumber={course_code}')
     element0 = WebDriverWait(driver, 5).until(EC.title_is(("Log in to Your UChicago Account")))
     if driver.current_url == "https://shibboleth2.uchicago.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s2":
@@ -52,9 +59,16 @@ def get_course_eval(dept_name, course_code, aspect, n ,k):
                 comments['add_comments'].update(q.text.split('\n')[3:])
         driver.switch_to.window(driver.window_handles[0])
 
-    print(comments)
-    top_k = salients.find_top_k_ngrams(comments[aspect], n, False, k)
-    return top_k
+    return comments
+    #top_k = salients.find_top_k_ngrams(comments[aspect], n, False, k)
+    
+def analyzer(comments):
+    for c in comments.values(): 
+        tokenized_words = word_tokenize(c)
+        for w in tokenized_words:
+            if w not in set(stopwords.words("english")):
+                keywords
+
 
 
 

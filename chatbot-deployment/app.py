@@ -6,18 +6,20 @@ from flask import Flask, render_template, request, jsonify
 app = Flask(__name__)
 #CORS(app)
 
-@app.get("/")
+@app.route("/")
 
 def index_get():
     return render_template("base.html") 
 
-
-@app.post("/predict")
+@app.route("/predict", methods=['POST'])
 def predict():
     # get user input
-    response = "Sorry, I can't do anything right now lol" # get bot output from back-end
+    #response = get_response(user_input)
+    response = "Sorry, I can't do anything right now lol"  # get bot output from back-end
     message = {"answer": response}
+    print(message)
     return jsonify(message)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

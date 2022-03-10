@@ -609,3 +609,12 @@ JavaScript error: chrome://remote/content/marionette/cert.js, line 55: NS_ERROR_
 
 ###!!! [Parent][PImageBridgeParent] Error: RunMessage(msgname=PImageBridge::Msg_WillClose) Channel closing: too late to send/recv, messages will be lost
 
+1646810261989	geckodriver	INFO	Listening on 127.0.0.1:43385
+1646810262781	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/user/21579/rust_mozprofileXztaKI"
+Error: no DISPLAY environment variable specified
+1646810266710	geckodriver	INFO	Listening on 127.0.0.1:53993
+1646810266731	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/user/21579/rust_mozprofilerm5HYM"
+Error: no DISPLAY environment variable specified
+1646810277763	geckodriver	INFO	Listening on 127.0.0.1:40511
+1646810277781	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "--marionette" "-no-remote" "-profile" "/tmp/user/21579/rust_mozprofilecRLDke"
+Error: no DISPLAY environment variable specified
