@@ -67,7 +67,7 @@ def initialization():
 
             for j in range(4):
 
-                get_quarter_info(i, j, year_to_name. schedule_obj)
+                get_quarter_info(i, j, year_to_name, schedule_obj)
 
         else:
 
@@ -79,7 +79,7 @@ def initialization():
 
     print("\nNow that I know what your schedule looks like, let's move on to the fun part.\n"+
     "Type whatever questions you have about courses at UChicago in the input bar.\n"+
-    "I'll think about what you're saying and present you with the 5 things I think you're\n"+
+    "I'll think about what you're saying and present you with the 3 things I think you're\n"+
     "most likely asking. Simply input the number of the question you meant and I'll get you\n"+
     "an answer as quickly as I can. If your question is not in the recommended list, you can\n"+
     "expand the list to see all the tasks I'm capable of doing and select the correct one.\n"+
@@ -146,54 +146,97 @@ def main_question_loop(schedule_obj):
 
         ranked_tasks = identifier.identify_task(user_input)
 
-        ranked_output = "\nHere's what I think you might be asking:"
-        for i, task in enumerate(ranked_tasks[:3]):
-            ranked_output += "\n    " + str(i + 1) + ". " + ranked_tasks[i]
-        ranked_output += "\n    4. See more options.\n    5. Type new question."
+        show_expanded = False
 
-        print(ranked_output)
+        task_completed = False
 
-        user_choice = "None"
-        while user_choice not in range(1,6):
+        while not task_completed:
 
-            user_choice = input("\nWhich one of these would you like me to do for you?\n\n>>> ")
+            ranked_output = display_output(ranked_tasks, show_expanded)
 
-            user_choice = re.search("1|2|3|4|5", user_choice)
-            if user_choice:
-                user_choice = user_choice.group()
-                user_choice = int(user_choice)
+            print(ranked_output)
 
-                # Branch of tasks
-
-                if user_choice in range(1,4):
-
-                    answer = call_task(ranked_tasks[user_choice - 1], schedule_obj)
-
-                    print("\n" + answer)
-
-                elif user_choice == 4:
-                    
-                    ranked_output = "\nHere's the full list of tasks I've got:"
-                    count = 0
-                    for i, task in enumerate(ranked_tasks):
-                        ranked_output += "\n    " + str(i + 1) + ". " + ranked_tasks[i]
-                        count = i
-                    ranked_output += "\n    " + (count + 2) + ". " + "Type new question."
-
-                    # Need to finish
-
-
-                else:
-                    print("\nNo worries! We can do that right away!")
-
-            else:
-                print("\nI'm not understanding what you're asking. Please try again.")
+            show_expanded, task_completed = answer_user_input(ranked_tasks, show_expanded, task_completed, schedule_obj)
 
     identifier.save_information()
 
     print("\nAwe, you're leaving already! I hope I was helpful!")
 
     print("\n------------*BLEEP*-------------")
+
+
+def answer_user_input(ranked_tasks, show_expanded, task_completed, schedule_obj):
+
+    user_choice = "0"
+
+    range_ = len(ranked_tasks)
+
+    if not show_expanded:
+        range_ = 6
+
+    while user_choice not in range(1, range_):
+
+        user_choice = input("\nWhich one of these would you like me to do for you?\n\n>>> ")
+
+        user_choice = re.search("[0-9]+", user_choice)
+        if user_choice:
+            user_choice = user_choice.group()
+            user_choice = int(user_choice)
+
+            # Branch of tasks
+            if not show_expanded:
+                sub_range = range_ - 2
+            else:
+                sub_range = range_ - 1
+
+            if user_choice in range(1,sub_range):
+
+                answer = call_task(ranked_tasks[user_choice - 1], schedule_obj)
+
+                print("\n")
+
+                print(answer)
+
+                task_completed = True
+                show_expanded = False
+                return show_expanded, task_completed
+
+            elif user_choice == 4 and not show_expanded:
+
+                task_completed = False
+                show_expanded = True
+                return show_expanded, task_completed
+
+            else:
+                print("\nNo worries! We can do that right away!")
+                show_expanded = False
+                task_completed = True
+                return show_expanded, task_completed
+
+        else:
+            print("\nI'm not understanding what you're asking. Please try again.")
+
+
+def display_output(ranked_tasks, show_expanded):
+
+    if not show_expanded:
+        ranked_tasks = ranked_tasks[:3]
+
+    ranked_output = "\nHere's what I think you might be asking:"
+    count = 0
+    for i, task in enumerate(ranked_tasks):
+        ranked_output += ("\n    " + str(i + 1) + ". " + ranked_tasks[i])
+        count += 1
+
+    if not show_expanded:
+        ranked_output += ("\n    " + str(count + 1) + ". See more options.")
+        count += 1
+
+    ranked_output += ("\n    " + str(count + 1) + ". Type new question.")
+
+    return ranked_output
+
+
 
 def call_task(task, schedule_obj):
 
@@ -287,8 +330,6 @@ def call_task(task, schedule_obj):
         return schedule_obj
 
     return "Something went wrong... Try again please."
-
-
 
 
 def obtain_course_code(prompt_text):
