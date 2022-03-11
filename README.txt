@@ -1,5 +1,26 @@
+Phil the ChatBot - CS 122 Group Project by Max Huisman, Vidyut Baradwaj, and Omar Khan
+
+Motivation:
+As UChicago students, we are already stressed by the time pre-registration comes around during Week 7. 
+While Academic advisors exist, they're not the most accessible during times of experience. So, we felt
+there was a need for an interactive program that answers questions students may have when picking courses,
+such as what prerequisites a class has, who teaches it, when is it offered, and whether the student fulfills    
+the requirement to complete a given course and what students thought about a particular course. 
+It's easier to use than Stellic, easier to reach than your academic advisor, and wittier than anyone you know!
+
+Hope you enjoy talking to Phil, just as much as he will talking to you :)
+
+Instructions:
+We have implemented two UIs:
+1. An interactive text-based interface that includes all of Phil's functionalites
+
+2. A Flask-powered web-application that only answers questions relating to course evaluations
 
 This is an overview of all the files and directories in CS122-Group-Project
+
+Modules and packages you will need: 
+Flask
+Tabulate
 
 
 >>> Files - starred (***) items are important to the project:
