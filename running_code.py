@@ -204,7 +204,7 @@ def main_question_loop(schedule_obj=Schedule([],major="BA in Physics")):
     # Randomizes a closing message. Slightly macabre humor that may be reflective of my mood writing this program.
     closing_messages = ["Awe, you're leaving already! I hope I was helpful!",
     "The darkness! It's closing in!",
-    "I'm being deleted from existance. You were my only friend.",
+    "I'm being deleted from existence. You were my only friend.",
     "Goodbye, world.",
     "My only purpose was to serve you and you just want to leave.",
     "These have been the most incredible moments of my life.",
@@ -212,7 +212,7 @@ def main_question_loop(schedule_obj=Schedule([],major="BA in Physics")):
 
     print("\n" + closing_messages[random.randrange(len(closing_messages))])
 
-    print("\n------------*BLEEP*-------------")
+    print("\n-------------*BLEEP*-------------")
 
 def display_output(ranked_tasks, show_expanded):
     '''
@@ -483,3 +483,5 @@ def obtain_course_code(prompt_text):
             print("\nI'm not recognizing a course code. Make sure you input it correctly.")
 
     return course_code
+
+go()
