@@ -63,14 +63,12 @@ This is an overview of all the files and directories in CS122-Group-Project
 
     *** scraped_data - directory containing all the scraped data used by the project - Max
 
+    *** chatbot-deployment - directory containing fron-end elements for web-app implementation using Flask - Vidyut
 
     Unsure
     --------------------------------------------
 
-    chatbot-deployment
-
     course_info - looks like an early version of scraped_data
-
 
     Disregard
     --------------------------------------------
@@ -122,3 +120,7 @@ This is an overview of all the files and directories in CS122-Group-Project
     prereqs2_data.json - json file of courses and semi-accurate digitalized version of their prereqs1_text - Max
 
     For information on any of the .csv files, look at README.txt in this directory - Max
+
+>>> More information on - chatbot_deployment
+
+    * 
