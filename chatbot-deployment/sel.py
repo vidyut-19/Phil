@@ -28,8 +28,8 @@ def get_course_eval(course_code):
         driver.find_element_by_id("username").send_keys('vidyut')
         driver.find_element_by_id("password").send_keys(password)
         driver.find_element_by_id("submit").click()
-    element2 =  WebDriverWait(driver, 30).until(EC.title_is(("Duo Login")))
-    element3 =  WebDriverWait(driver, 30).until(EC.title_is(("Course Feedback | The University of Chicago")))
+    element2 =  WebDriverWait(driver, 60).until(EC.title_is(("Duo Login")))
+    element3 =  WebDriverWait(driver, 60).until(EC.title_is(("Course Feedback | The University of Chicago")))
     comments = {'gains' : set(), 'aspects' : set(), 'add_comments' : set(),  'difficulty' : set(), 'inst_features' : set(), 'inst_impr' : set()}
     element4 = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="evalSearchResults"]/thead/tr/th[2]')))
     driver.find_element_by_xpath('//*[@id="evalSearchResults"]/thead/tr/th[4]').click()
@@ -44,6 +44,7 @@ def get_course_eval(course_code):
         q_lst = driver.find_elements_by_class_name('report-block')
 
         for q in q_lst:
+
             if "What are the most important things that you learned in this course? Please reflect on the knowledge and skills you gained." in q.text:
                 comments['gains'].update(q.text.split('\n')[3:])                
             elif "What could she/he modify to help you learn more?" in q.text or "What could the instructor modify to help you learn more?" in q.text:

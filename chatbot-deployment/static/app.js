@@ -14,7 +14,7 @@ class Chatbox {
     display() {
         const {openButton, chatBox, sendButton} = this.args;
         
-         addEventListener('click', () => this.toggleState(chatBox))
+        addEventListener('click', () => this.toggleState(chatBox))
 
         sendButton.addEventListener('click', () => this.onSendButton(chatBox))
         
