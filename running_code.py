@@ -466,7 +466,7 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
 
         course_code = obtain_course_code("What course do you want to know about?")
 
-        print("Okie dokie. Give me a minute or so till I run my models and get back to you")
+        print("\nOkie dokie. Give me a minute or so till I run my models and get back to you.")
 
         return task_processing.analyzer(course_code)
 
@@ -474,15 +474,15 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
         
         print("\nQuick warning. I need at least 3 course evals for any course you want me"+
         "\nto analyze so I may not be able to process a super-niche or new course." + 
-        "\n You will also see a browser open up prompting you to login using your CNET ID")
+        "\nYou will also see a browser open up prompting you to login using your CNET ID.")
         
         course_code = obtain_course_code("What course do you want to know about?")
 
         aspects_possible = {"gains", "aspects", "additional comments", "difficulty", "instructor features", "sources for improvement"}
 
         aspect_text = "\nHere's what I support:\n"
-        for thing in aspects_possible:
-            aspect_text += (thing + "\n")
+        for i, thing in enumerate(aspects_possible):
+            aspect_text += ("    " + str(i + 1) + ". " + thing + "\n")
 
         aspect = "None"
         while aspect not in aspects_possible:
@@ -490,7 +490,14 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
             if aspect not in aspects_possible:
                 print("\nYou silly silly person. I don't know that aspect! Please input one from the list.")
 
-        return str(task_processing.get_course_eval(course_code, aspect)).strip("\{}")
+        comments = task_processing.get_course_eval(course_code, aspect)
+
+        str_output = ("\nHere are %d comments I found about %s's \"%s\" aspect:") % (len(comments), course_code, aspect)
+
+        for i, comment in enumerate(comments):
+            str_output += ("    " + str(i + 1) + ". " + comment + "\n")
+
+        return str_output
 
     return "Something went wrong... Try again please."
 
@@ -517,5 +524,3 @@ def obtain_course_code(prompt_text):
             print("\nI'm not recognizing a course code. Make sure you input it correctly.")
 
     return course_code
-
-go()
