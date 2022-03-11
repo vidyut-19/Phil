@@ -12,7 +12,8 @@ nltk.download('stopwords')
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
 analyzer = SentimentIntensityAnalyzer()
 
-password = 'Boeing#777X2019'
+
+
 options = webdriver.FirefoxOptions()
 options.headless = True
 
@@ -25,11 +26,8 @@ def get_course_eval(dept_name, course_code):
     element0 = WebDriverWait(driver, 5).until(EC.title_is(("Log in to Your UChicago Account")))
     if driver.current_url == "https://shibboleth2.uchicago.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s2":
         element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "username")))
-        driver.find_element_by_id("username").send_keys('vidyut')
-        driver.find_element_by_id("password").send_keys(password)
-        driver.find_element_by_id("submit").click()
     element2 =  WebDriverWait(driver, 30).until(EC.title_is(("Duo Login")))
-    element3 =  WebDriverWait(driver, 30).until(EC.title_is(("Course Feedback | The University of Chicago")))
+    element3 =  WebDriverWait(driver, 60).until(EC.title_is(("Course Feedback | The University of Chicago")))
     comments = {'gains' : set(), 'aspects' : set(), 'add_comments' : set(),  'difficulty' : set(), 'inst_features' : set(), 'inst_impr' : set()}
     element4 = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="evalSearchResults"]/thead/tr/th[2]')))
     driver.find_element_by_xpath('//*[@id="evalSearchResults"]/thead/tr/th[4]').click()

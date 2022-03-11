@@ -458,6 +458,33 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
         return ("Great! I've sent that along to my (for the moment) superiors. Hopefully it was something" +
         " nice... just kidding. I have no emotions so I don't care.")
 
+    elif task == "What did people think about this course?":
+
+        pass
+
+        
+
+    elif task == "What do people think about a certain aspect of this course?":
+        
+        print("\nQuick warning. I need at least 3 course evals for any course you want me"+
+        "\nto analyze so I may not be able to process a super-niche or new course.")
+        
+        course_code = obtain_course_code("What course do you want to know about?")
+
+        aspects_possible = {"gains", "aspects", "additional comments", "difficulty", "instructor features", "sources for improvement"}
+
+        aspect_text = "\nHere's what I support:\n"
+        for thing in aspects_possible:
+            aspect_text += (thing + "\n")
+
+        aspect = "None"
+        while aspect not in aspects_possible:
+            aspect = input("\nWhich of the following aspects are you interested in?\n" + aspect_text + "\n>>> ")
+            if aspect not in aspects_possible:
+                print("\nYou silly silly person. I don't know that aspect! Please input one from the list.")
+
+        return str(task_processing.get_course_eval(course_code, aspect)).strip("{}")
+
     return "Something went wrong... Try again please."
 
 

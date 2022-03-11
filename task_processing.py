@@ -496,23 +496,23 @@ def req_to_text(req):
 
     return output_text
 
-def get_course_eval(dept_name, course_code):
+def get_course_eval(course_code, aspect):
     '''
     Scrapes course evals and outputs a dictionary containing comments for select common questions
     Inputs - (str) dept name (XXXX) and course_code (12345)
     Output - comments (dict) mapping attribute of course eval to set of comments (str)
     '''
-    driver = webdriver.Firefox(executable_path = '/home/vidyut/CS122-Group-Project/geckodriver')
+
+    dept_name, course_code = tuple(course_code.split())
+
+    driver = webdriver.Firefox(executable_path = './geckodriver')
     driver.get(f'https://coursefeedback.uchicago.edu/?CourseDepartment={dept_name}&CourseNumber={course_code}')
-    element0 = WebDriverWait(driver, 5).until(EC.title_is(("Log in to Your UChicago Account")))
+    element0 = WebDriverWait(driver, 50).until(EC.title_is(("Log in to Your UChicago Account")))
     if driver.current_url == "https://shibboleth2.uchicago.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s2":
         element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "username")))
-        driver.find_element_by_id("username").send_keys('vidyut')
-        driver.find_element_by_id("password").send_keys(password)
-        driver.find_element_by_id("submit").click()
     element2 =  WebDriverWait(driver, 30).until(EC.title_is(("Duo Login")))
     element3 =  WebDriverWait(driver, 30).until(EC.title_is(("Course Feedback | The University of Chicago")))
-    comments = {'gains' : set(), 'aspects' : set(), 'add_comments' : set(),  'difficulty' : set(), 'inst_features' : set(), 'inst_impr' : set()}
+    comments = {'gains' : set(), 'aspects' : set(), 'additional comments' : set(),  'difficulty' : set(), 'instructor features' : set(), 'sources for improvement' : set()}
     element4 = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="evalSearchResults"]/thead/tr/th[2]')))
     driver.find_element_by_xpath('//*[@id="evalSearchResults"]/thead/tr/th[4]').click()
     element5 = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="evalSearchResults"]/thead/tr/th[2]')))
@@ -526,22 +526,21 @@ def get_course_eval(dept_name, course_code):
         q_lst = driver.find_elements_by_class_name('report-block')
 
         for q in q_lst:
-            print(q.text)
             if "What are the most important things that you learned in this course? Please reflect on the knowledge and skills you gained." in q.text:
                 comments['gains'].update(q.text.split('\n')[3:])                
             elif "What could she/he modify to help you learn more?" in q.text or "What could the instructor modify to help you learn more?" in q.text:
-                comments['inst_impr'].update(q.text.split('\n')[3:])               
+                comments['sources for improvement'].update(q.text.split('\n')[3:])               
             elif "What aspect of the instructor's teaching contributed most to your learning?" in q.text or "Thinking about your time in class, what aspect of the instructor's teaching contributed most to your learning?" in q.text:
-                comments['inst_features'].update(q.text.split('\n')[3:])
+                comments['instructor features'].update(q.text.split('\n')[3:])
             elif "Please comment on the level of difficulty of the course relative to your background and experience." in q.text:
                 comments['difficulty'].update(q.text.split('\n')[3:])
             elif "Describe how aspects of this course (lectures, discussions, labs, assignments, etc.) contributed to your learning." in q.text:
                 comments['aspects'].update(q.text.split('\n')[3:])
             elif "Additional Comments about this course" in q.text:
-                comments['add_comments'].update(q.text.split('\n')[3:])
+                comments['additional comments'].update(q.text.split('\n')[3:])
         driver.switch_to.window(driver.window_handles[0])
 
-    return comments
+    return comments[aspect]
 
     
 def analyzer(comments):
