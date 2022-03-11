@@ -3,7 +3,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import random
-import salients
 import json
 import nltk
 from nltk.tokenize import sent_tokenize
@@ -16,12 +15,13 @@ password = 'Boeing#777X2019'
 options = webdriver.FirefoxOptions()
 options.headless = True
 
-def get_course_eval(dept_name, course_code):
+def get_course_eval(course_code):
     '''
 
     '''
+    course = course_code.split()
     driver = webdriver.Firefox(executable_path = '/home/vidyut/CS122-Group-Project/geckodriver')
-    driver.get(f'https://coursefeedback.uchicago.edu/?CourseDepartment={dept_name}&CourseNumber={course_code}')
+    driver.get(f'https://coursefeedback.uchicago.edu/?CourseDepartment={course[0]}&CourseNumber={course[1]}')
     element0 = WebDriverWait(driver, 5).until(EC.title_is(("Log in to Your UChicago Account")))
     if driver.current_url == "https://shibboleth2.uchicago.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s2":
         element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "username")))
@@ -58,11 +58,11 @@ def get_course_eval(dept_name, course_code):
                 comments['add_comments'].update(q.text.split('\n')[3:])
         driver.switch_to.window(driver.window_handles[0])
 
-    return comments
+    return random.sample(comments['difficulty'], 2)[0]
     #top_k = salients.find_top_k_ngrams(comments[aspect], n, False, k)
     
-def analyzer(comments):
-    for c in comments.values(): 
-        tokenized_words = word_tokenize(c)
-        for w in tokenized_words:
-            if w not in set(stopwords.words("english")):
+#def analyzer(comments):
+  #  for c in comments.values(): 
+       # tokenized_words = word_tokenize(c)
+        #for w in tokenized_words:
+            #if w not in set(stopwords.words("english")):
