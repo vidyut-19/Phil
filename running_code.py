@@ -11,10 +11,19 @@ from identify_tasks import Identifier
 import csv
 
 def go():
+    '''
+    The function that runs everything. Uses initialization() to create a schedule object
+    that is then passed along to the main_question_loop() where it is operated on.
+    '''
 
     main_question_loop(initialization())
 
 def initialization():
+    '''
+    The purpose of this function is to get information from the user on what their major is
+    and which classes they have already taken and when. This allows us to have a schedule object
+    that main_question_loop() operates on.
+    '''
 
     # Introduction
     print("\nHello, my name is Phil the bot!")
@@ -64,12 +73,14 @@ def initialization():
 
         print(year_message[i + 1])
 
+        # For years before the current year we need to fill in all quarters.
         if i + 1 < curr_year:
 
             for j in range(4):
 
                 get_quarter_info(i, j, year_to_name, schedule_obj)
 
+        # For the current year we only need to fill in up to the current quarter
         else:
 
             for j in range(curr_semester + 1):
@@ -90,6 +101,16 @@ def initialization():
 
 
 def get_quarter_info(year, semester, year_to_name, schedule_obj):
+    '''
+    Helper function for initialization(). Used when the bot is trying to figure out which classes
+    a user has already taken. Updates the schedule object with the information it gets.
+
+    Inputs:
+        year (int) - the current year
+        semester (int) - the current semester
+        year_to_name (dict) - dictionary that takes a number 1-4 and turns it into adequate string
+        schedule_obj - the schedule object we need to add the classes to
+    '''
 
     num_to_semester = {0: "Autumn", 1: "Winter", 2: "Spring", 3: "Summer"}
 
@@ -101,6 +122,7 @@ def get_quarter_info(year, semester, year_to_name, schedule_obj):
 
         courses_taken = re.findall("[A-Z]{4} [0-9]{5}", courses_taken_input)
 
+        # If no courses are entered, confirms with user that this was intentional.
         if courses_taken == []:
 
             confirm_courses_taken = input("\nHmmmmm. Maybe it's just me but I'm not recognizing any course codes in this.\n" +
@@ -108,6 +130,7 @@ def get_quarter_info(year, semester, year_to_name, schedule_obj):
 
         else:
 
+            # Confirm with the user that this is what they want to add.
             courses_str_confirm = ""
 
             for course in courses_taken:
@@ -119,6 +142,7 @@ def get_quarter_info(year, semester, year_to_name, schedule_obj):
             confirm_courses_taken = input(("\nOkay, okay. Let me see if I got this right. %s quarter your %s year you took: "
             + courses_str_confirm + ".\nAm I correct? (y/n)\n\n>>> ") % (num_to_semester[semester], year_to_name[year + 1]))
 
+            # If they do confirm, add these courses to the schedule.
             if confirm_courses_taken == "y":
 
                 print("\nAwesome! Let me add those courses to your schedule.")
@@ -128,14 +152,27 @@ def get_quarter_info(year, semester, year_to_name, schedule_obj):
                     print("    ...added " + course_code)
 
 
-def main_question_loop(schedule_obj=Schedule([],major="BA in Writing Spaghetti Code")):
+def main_question_loop(schedule_obj=Schedule([],major="BA in Physics")):
+    '''
+    As the name suggests this is the main schedule loop. It has a default schedule_obj in it for easier debugging.
+    Takes the schedule_obj created in initialization() and presents the user with a prompt. Off of that prompt,
+    it uses an Identifier() object to identify what the user is most likely asking. It presents these numbered options
+    to the user. Whatever numbered item the user selects is then passed along to call_task() which carries out the
+    desired operation.
 
+    Inputs:
+        schedule_obj - the schedule object created in initialization()
+    '''
+
+    # Identifier object used to make sense of user_input.
     identifier = Identifier()
 
     user_input = "None"
 
+    # As long as the user hasn't asked to stop, keep presenting prompts.
     while user_input != "QUIT":
 
+        # Randomizes the main prompt for some ~fun~ variety.
         prompts_list = ["Heya buddy, what can I help you with?", "--Beep Boop-- Just kidding. What can I do for you?",
         "I. AM. A. ROBOT... I'm playing, I'm actually a highly sophisticated blob of string concatenations. What do you need?",
         "What's on your mind this time?", "How may I be of service, Master?",
@@ -145,22 +182,26 @@ def main_question_loop(schedule_obj=Schedule([],major="BA in Writing Spaghetti C
 
         user_input = input("\n" + prompts_list[random.randrange(len(prompts_list))] + "\n\n>>> ")
 
+        # Uses the identifier to create a list of the tasks most likely being requested.
         ranked_tasks = identifier.identify_task(user_input)
 
         show_expanded = False
-
         task_completed = False
 
+        # Shows the user a numbered menu of options they can choose from. Once they pick, prints the answer.
         while not task_completed and user_input != "QUIT":
 
+            # Generates the numbered menu. If show_expanded is true, it shows all options, otherwise only top 3.
             ranked_output = display_output(ranked_tasks, show_expanded)
-
             print(ranked_output)
 
-            show_expanded, task_completed = answer_user_input(ranked_tasks, show_expanded, task_completed, schedule_obj)
+            # Asks the user which menu item they want and then carries out the request
+            show_expanded, task_completed = answer_user_input(ranked_tasks, show_expanded, task_completed, schedule_obj, user_input, identifier)
 
+    # When the user ends their session, we want to store all inputs we've trained Identifier() on.
     identifier.save_information()
 
+    # Randomizes a closing message. Slightly macabre humor that may be reflective of my mood writing this program.
     closing_messages = ["Awe, you're leaving already! I hope I was helpful!",
     "The darkness! It's closing in!",
     "I'm being deleted from existance. You were my only friend.",
@@ -173,60 +214,14 @@ def main_question_loop(schedule_obj=Schedule([],major="BA in Writing Spaghetti C
 
     print("\n------------*BLEEP*-------------")
 
-
-def answer_user_input(ranked_tasks, show_expanded, task_completed, schedule_obj):
-
-    user_choice = "0"
-
-    range_ = len(ranked_tasks)
-
-    if not show_expanded:
-        range_ = 6
-
-    while user_choice not in range(1, range_):
-
-        user_choice = input("\nWhich one of these would you like me to do for you?\n\n>>> ")
-
-        user_choice = re.search("[0-9]+", user_choice)
-        if user_choice:
-            user_choice = user_choice.group()
-            user_choice = int(user_choice)
-
-            # Branch of tasks
-            if not show_expanded:
-                sub_range = range_ - 2
-            else:
-                sub_range = range_ - 1
-
-            if user_choice in range(1,sub_range):
-
-                answer = call_task(ranked_tasks[user_choice - 1], schedule_obj)
-
-                print("\n")
-
-                print(answer)
-
-                task_completed = True
-                show_expanded = False
-                return show_expanded, task_completed
-
-            elif user_choice == 4 and not show_expanded:
-
-                task_completed = False
-                show_expanded = True
-                return show_expanded, task_completed
-
-            else:
-                print("\nNo worries! We can do that right away!")
-                show_expanded = False
-                task_completed = True
-                return show_expanded, task_completed
-
-        else:
-            print("\nI'm not understanding what you're asking. Please try again.")
-
-
 def display_output(ranked_tasks, show_expanded):
+    '''
+    Generates the numbered menu of choices available to the user.
+
+    Inputs:
+        raned_tasks (lst) - list of tasks where more likely tasks are at lower indices
+        show_expanded (bool) - boolean that tells display_output() whether to show all tasks or just top 3
+    '''
 
     if not show_expanded:
         ranked_tasks = ranked_tasks[:3]
@@ -237,17 +232,100 @@ def display_output(ranked_tasks, show_expanded):
         ranked_output += ("\n    " + str(i + 1) + ". " + ranked_tasks[i])
         count += 1
 
+    # If we're not showing all options, we need to include an option to be able to see them all
     if not show_expanded:
         ranked_output += ("\n    " + str(count + 1) + ". See more options.")
         count += 1
 
+    # Option to allow user to cancel current question
     ranked_output += ("\n    " + str(count + 1) + ". Type new question.")
 
     return ranked_output
 
+def answer_user_input(ranked_tasks, show_expanded, task_completed, schedule_obj, user_input, identifier):
+    '''
+    Asks the user for their response to the numbered menu and respons accordingly.
+
+    Inputs:
+        ranked_tasks (lst) - list of tasks where more likely tasks are at lower indices
+        show_expanded (bool) - boolean that lets us know whether the user was presented an expanded menu or not
+        task_completed (bool) - is the task is done we can end the loop
+        schedule_obj - the user's schedule
+        user_input - the user's original input to the main prompt line. Used for training identifier
+        identifier - our identifier object. Gets updated in this fxn.
+    '''
+
+    user_choice = "0"
+
+    range_ = len(ranked_tasks)
+
+    if not show_expanded:
+        range_ = 6
+
+    # As long as the user doesn't input a valid number, keep running this code.
+    while user_choice not in range(1, range_):
+
+        user_choice = input("\nWhich one of these would you like me to do for you?\n\n>>> ")
+
+        # Looks for a number in the response and turns it into an integer.
+        user_choice = re.search("[0-9]+", user_choice)
+        if user_choice:
+            user_choice = user_choice.group()
+            user_choice = int(user_choice)
+
+            
+            if not show_expanded:
+                sub_range = range_ - 2
+            else:
+                sub_range = range_ - 1
+
+            # If they selected a number related to a task
+            if user_choice in range(1,sub_range):
+
+                # Now that we know what is being asked, tell call_task that and get the answer
+                answer = call_task(ranked_tasks[user_choice - 1], schedule_obj)
+
+                print("\n")
+
+                print(answer)
+
+                task_completed = True
+                show_expanded = False
+
+                # Update identifier to incorporate this new way of asking for the task.
+                # Done after the answer is shown so the user doesn't realize the time it takes
+                # to recalculate tf idf values.
+                identifier.train_task(user_input, ranked_tasks[user_choice - 1])
+
+                return show_expanded, task_completed
+
+            # If they didn't have an expanded menu and chose 4 so they could see the expanded menu
+            elif user_choice == 4 and not show_expanded:
+
+                task_completed = False
+                show_expanded = True
+                return show_expanded, task_completed
+
+            # If anything else for whatever reason, just restart the process
+            else:
+                print("\nNo worries! We can do that right away!")
+                show_expanded = False
+                task_completed = True
+                return show_expanded, task_completed
+
+        else:
+            print("\nI'm not understanding what you're asking. Please try again.")
+
 
 
 def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code")):
+    '''
+    Takes a task and a schedule object and then returns an answer.
+
+    Inputs:
+        task (str) - the "official" way of requesting this task
+        schedule_obj - the one you know and love
+    '''
 
     if task == "What are the prerequisites for this course?":
         
@@ -305,6 +383,7 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
         
         course_code = obtain_course_code("Which course would you like to add?")
 
+        # Need to know what year they want to add it in
         year = "None"
         while year not in range(1,5):
             year = input(("\nWhat year would you like to add %s in?\n\n>>> ") % (course_code))
@@ -315,13 +394,14 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
 
         quarters_to_numbers = {"Autumn": 0, "Winter": 1, "Spring": 2, "Summer": 3}
 
+        # ... and which quarter
         quarter = "None"
         while quarter not in quarters_to_numbers:
             quarter = input(("\nWhat quarter in year %d would you like to add %s in?\n\n>>> ") % (year, course_code))
             if quarter not in quarters_to_numbers:
                 print("\nPlease make sure you input the quarter as Autumn, Winter, Spring, or Summer.")
 
-
+        # ... aaaand finally which professor
         instructor = input(("Which instructor will you be taking %s with?\nIf you don't know, you can put a note for" +
         "yourself letting you know you have no preference!") % (course_code))
 
@@ -350,6 +430,7 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
         while new_major not in majors_available:
             new_major = input("\nWhat would you like your new major to be?\n\n>>> ")
             
+            # New major must be one supported by the bot.
             if new_major not in majors_available:
 
                 print(("\nWhile %s sounds like a wonderful major, I don't support or" +
@@ -369,6 +450,7 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
             confirm_question = input(("\nLet me see if I got this straight..." +
             " You want to tell them \"%s\"? (y/n)\n\n>>> ") % (suggested_question))
 
+        # Stores the suggestion for the devs to see.
         with open('suggested_questions.csv', 'a') as file:
             writer = csv.writer(file)
             writer.writerow([suggested_question])
@@ -380,6 +462,12 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
 
 
 def obtain_course_code(prompt_text):
+    '''
+    Used by a lot of tasks in call_task() to confirm which course code is required
+
+    Inputs:
+        prompt_text (str) - the prompt we want to present to the user
+    '''
 
     course_code_found = False
     while not course_code_found:

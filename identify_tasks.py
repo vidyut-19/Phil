@@ -13,22 +13,6 @@ class Identifier:
     A model that uses tf idf scores to determine what a user is most
     likely requesting by drawing on a json file filled with previous
     requests.
-
-    Supported tasks:
-        What are the prerequisites for this course?
-        Who are the instructors for this course?
-        What are the equivalent courses for this course?
-        Are these courses equivalent?
-        What are the notes for this course?
-        Which quarters is this course offered?
-        What majors do you support?
-        What requirements do I have left for my major?
-        Do I meet the prerequisites for this course?
-        Can you add this course to my schedule?
-        Can you remove this course from my schedule?
-        Can you show me my schedule?
-        Submit a question to my developers.
-        Can you change my major?
     '''
 
     def __init__(self):
@@ -268,19 +252,6 @@ def build_tasks_and_prev_inputs():
     For developer use only. Allows someone to quickly train the model on a lot of new ways of
     requesting tasks.
     '''
-
-    # tasks_to_build = ['What are the prerequisites for this course?',
-    # 'Who are the instructors for this course?',
-    # 'What are the equivalent courses for this course?',
-    # 'Are these courses equivalent?',
-    # 'What are the notes for this course?',
-    # 'Which quarters is this course offered?',
-    # 'What majors do you support?',
-    # 'What requirements do I have left for my major?',
-    # 'Do I meet the prerequisites for this course?',
-    # 'Can you add this course to my schedule?',
-    # 'Can you remove this course from my schedule?',
-    # 'Can you show me my schedule?']
 
     with open('tasks_and_prev_inputs.json') as file:
         tasks_and_prev_inputs = json.load(file)

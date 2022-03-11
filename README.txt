@@ -1,0 +1,121 @@
+
+This is an overview of all the files and directories in CS122-Group-Project
+
+
+>>> Files - starred (***) items are important to the project:
+
+    Crucial to project
+    --------------------------------------------
+
+    *** running_code.py - the most important file here. Connects together everything and runs the
+    terminal based user interface. [commented] - Max
+
+    *** task_processing.py - contains the functions that carry out the various tasks the bot can do.
+    Called in running_code.py to answer many tasks. [commented] - Omar, Max, Vidyut
+
+    *** classes.py - the schedule and course objects that are used to keep track of the user's schedule [commented] - Max
+
+    *** identify_tasks.py - a class that is used to understand what a user is trying to ask. Uses tf-idf
+    scores to identify the most likely request and trains itself as the program is used. [commented] - Max
+
+    *** tasks_and_prev_inputs.json - a json document that stores the tasks_and_prev_inputs dictionary
+    used by identify_tasks.py. - Max
+
+    *** suggested_questions.csv - a csv containing the outputs of "Submit a comment to my developers."
+    in running_code.py. Devs can look at this and see what users want them to implement. - Max
+
+    Unsure
+    --------------------------------------------
+
+    salients.py
+
+    sele.py
+
+    geckodriver.log
+
+
+    Disregard
+    --------------------------------------------
+
+    'Project Brainstorming.pdf' - original brainstorming document
+
+    schedule.py - test version of schedule class
+
+    testui.py - experiments in GUI - Max
+
+    'course eval search' - no idea
+
+    suggestions.py - rough draft of task_processing
+
+    check_prereqs.py - discarded rough draft of old task - Max
+
+
+>>> Directories - starred (***) items are important to the project.
+    Scroll down to see more in-depth info on *** directories.
+
+    Crucial to Project
+    --------------------------------------------
+
+    *** scraping - directory that contains all the code used for scraping course catalog - Max
+
+    *** scraped_data - directory containing all the scraped data used by the project - Max
+
+
+    Unsure
+    --------------------------------------------
+
+    chatbot-deployment
+
+    course_info - looks like an early version of scraped_data
+
+
+    Disregard
+    --------------------------------------------
+
+    identify_ques - old directory initially used to develop identify_tasks.py
+
+
+>>> More information on - scraping
+
+    Crucial to Project
+    --------------------------------------------
+
+    *** course_scraping.py - bodged code to scrape information about courses from the course
+    catalog and write them to various csv files. - Max
+
+    *** process.py - helper functions for making sense of scraped information in course_scraping.py - Max
+
+    *** major_scraping.py - code to scrape major information from course catalog. Not perfect
+    and requires a human to check over the json file it produces but this is not intensive. - Max
+
+    *** instructor_extra.py - uses the UChicago directory to find the full name of an instructor
+    and their email if possible. - Max
+
+    *** pa2util.py - code taken from PA 2 to help with the automatic link traversal used in
+    course_scraping.py.
+
+
+    Disregard
+    --------------------------------------------
+
+    major_reqs_data.json - old info
+
+    major_reqs_data_BACKUP.json - backup
+
+    prereqs1_text.csv - old info
+
+    check_prereqs.py - obsolete code
+
+
+>>> More information on - scraped_data
+
+    Crucial to Project
+    --------------------------------------------
+
+    data.db - database that stores all information in these csv files - Omar
+
+    major_reqs_data.json - json file storing major requirement information - Max
+
+    prereqs2_data.json - json file of courses and semi-accurate digitalized version of their prereqs1_text - Max
+
+    For information on any of the .csv files, look at README.txt in this directory - Max

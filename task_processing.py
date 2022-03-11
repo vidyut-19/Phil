@@ -23,23 +23,6 @@ options = webdriver.FirefoxOptions()
 options.headless = True
 
 
-'''
-To Do
-
-working with _text.csv files
-- fxn that returns prereq text [TICK]
-- fxn that returns notes text [TICK]
-- fxn that returns equivalents text [TICK]
-- fxn that returns terms offred text [TICK]
-- fxn that returns an instructors email [TICK]
-
-working with _data.csv files
-- fxn that confirms whether a course is offered in a certain term [TICK]
-- fxn that confirms whether a course is an equivalent for another [TICK]
-- fxn that returns the full names of the professors teaching [TICK] (done in professors_processed)
-
-'''
-
 connection = sqlite3.connect("scraped_data/data.db")
 c = connection.cursor()
 
@@ -273,9 +256,10 @@ def is_term_in(course, term):
         return False
 
 
-#---------------------------------------------------------------------Max---------------------------------------------------------------
-
 def majors_available_data():
+    '''
+    Finds which majors the bot supports
+    '''
 
     with open('scraped_data/major_reqs_data.json') as file:
         major_info = json.load(file)
@@ -310,8 +294,11 @@ def majors_available():
 
 def major_reqs_left_processing(courses_taken, major):
     '''
-    courses_taken is a set
-    major is a string
+    Processes which major reqs are still left
+
+    Inputs:
+        courses_taken (set) - set of all courses taken/accounted for in the schedule
+        major (str) - the users major
     '''
 
     with open('scraped_data/major_reqs_data.json') as file:
@@ -343,6 +330,13 @@ def major_reqs_left_processing(courses_taken, major):
 
     
 def major_reqs_left_to_text(courses_taken, major):
+    '''
+    Takes the output of major-reqs_left_processing and makes it human readable.
+
+    Inputs:
+        courses_taken (set) - set of all courses taken/accounted for in the schedule
+        major (str) - the users major
+    '''
 
     reqs_satisfied, reqs_unsatisfied, elec_count = major_reqs_left_processing(courses_taken, major)
 

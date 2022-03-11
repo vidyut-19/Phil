@@ -12,6 +12,9 @@ known_prereqs = json.load(file_)
 # Schedule Class
 
 class Schedule:
+    '''
+    The user's schedule containing all their courses and the information related to them.
+    '''
 
     def __init__(self, courses_taken, major=None):
 
@@ -40,7 +43,11 @@ class Schedule:
 
 
     def add_course(self, course_code, semester, instructor="Not Specified"):
+        '''
+        Add a course to the schedule.
+        '''
 
+        # If the prereqs for this course aren't met, put a warning. (not 100% accurate)
         _, unsatisfied_prereqs = task_processing.meet_course_prereqs_processing(self.courses_acc_for, course_code)
 
         if unsatisfied_prereqs == []:
@@ -48,6 +55,7 @@ class Schedule:
         else:
             has_prereqs_warning = True
 
+        # Creates the course object to be added
         course_object = Course(course_code, semester, has_prereqs_warning, instructor)
 
         # Add to schedule
@@ -57,6 +65,9 @@ class Schedule:
         self.courses_acc_for.add(course_code)
 
     def remove_course(self, rem_course_code):
+        '''
+        If a course is in the schedule, it removes it.
+        '''
 
         # Remove from schedule
         for year in self.schedule:
@@ -72,11 +83,12 @@ class Schedule:
         self.courses_acc_for.remove(rem_course_code)
 
     def update_major(self, major):
+        '''
+        Allows someone to change their major.
+        '''
 
         self.major = major
       
-
-    # Make this into a nice repr
     def __repr__(self):
 
         num_to_semester = {0: "Autumn", 1: "Winter", 2: "Spring", 3: "Summer"}
@@ -108,9 +120,10 @@ class Schedule:
 
         return (tabulate(table, headers, tablefmt="grid"))
 
-# Course Class
-
 class Course:
+    '''
+    Class to represent a course.
+    '''
 
     def __init__(self, course_code, semester_taking, has_prereqs_warning, instructor="Not specified"):
 
@@ -137,6 +150,9 @@ class Course:
 
 
 def calc_max_courses(schedule):
+    '''
+    Helper function that determines how many columns to add to the schedule __repr__
+    '''
 
     max_courses = 0
 
