@@ -12,11 +12,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import random
 import salients
 import json
-import nltk
-from nltk.tokenize import sent_tokenize
-from nltk.tokenize import word_tokenize
-nltk.download('stopwords')
-from nltk.corpus import stopwords
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
 
 options = webdriver.FirefoxOptions()
@@ -572,3 +567,5 @@ def analyzer(course_code):
     neu = round((neu / n) * 100, 4)
 
     return f"Overall, evals for this course were {pos}% positive, {neg}% negative\n" + f" and {neu}% neutral"
+
+    
