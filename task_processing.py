@@ -503,6 +503,11 @@ def get_course_eval(course_code, aspect=None):
     Output - comments (dict) mapping attribute of course eval to set of comments (str)
     '''
 
+    exists = terms(course_code)
+
+    if exists == []:
+        return set()
+
     dept_name, course_code = tuple(course_code.split())
 
     driver = webdriver.Firefox(executable_path = './geckodriver')
@@ -533,6 +538,7 @@ def get_course_eval(course_code, aspect=None):
             elif "What aspect of the instructor's teaching contributed most to your learning?" in q.text or "Thinking about your time in class, what aspect of the instructor's teaching contributed most to your learning?" in q.text:
                 comments['instructor features'].update(q.text.split('\n')[3:])
             elif "Please comment on the level of difficulty of the course relative to your background and experience." in q.text:
+                print(q.text.split('\n')[3:])
                 comments['difficulty'].update(q.text.split('\n')[3:])
             elif "Describe how aspects of this course (lectures, discussions, labs, assignments, etc.) contributed to your learning." in q.text:
                 comments['aspects'].update(q.text.split('\n')[3:])
@@ -540,7 +546,7 @@ def get_course_eval(course_code, aspect=None):
                 comments['additional comments'].update(q.text.split('\n')[3:])
         driver.switch_to.window(driver.window_handles[0])
 
-    if aspect == None:
+    if aspect != None:
         return comments[aspect]
     else:
         return comments
@@ -556,6 +562,8 @@ def analyzer(course_code):
         verdict (str)
     '''
     comments = get_course_eval(course_code)
+    if len(comments) == 0:
+        return "Sorry, you seem to have entered a course that either doesn't have evaluations or doesn't exist."
     analyzer_ = SentimentIntensityAnalyzer()
     neg, pos, neu = 0, 0, 0
     n = 0
@@ -567,8 +575,8 @@ def analyzer(course_code):
             neu += senti_dict['neu']
             n += 1
 
-    neg = round((neg / n) * 100, 4)
-    pos = round((pos / n) * 100, 4)
-    neu = round((neu / n) * 100, 4)
+    neg = round((neg / n) * 100, 1)
+    pos = round((pos / n) * 100, 1)
+    neu = round((neu / n) * 100, 1)
 
-    return f"Overall, evals for this course were {pos}% positive, {neg}% negative\n" + f" and {neu}% neutral"
+    return f"Overall, evals for this course were {pos}% positive, {neg}% negative" + f" and {neu}% neutral"
