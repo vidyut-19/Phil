@@ -33,13 +33,13 @@ Hope you enjoy talking to Phil, just as much as he will talking to you :)
 We have implemented two UIs:
 1. An interactive text-based interface that includes all of Phil's functionalites
 Instructions to run:
-a. in this directory, type "python3 running_code"
+>in this directory, type "python3 running_code"
 
 2. A Flask-powered web-application that only answers questions relating to course evaluations
 Instructions to run:
-a. enter the chatbot_deployment directory
-b. type "python3 app.py" in the terminal to activate the web app 
-c. ctrl + click on the local link that appears in the terminal, opening up a python window
+>enter the chatbot_deployment directory
+>type "python3 app.py" in the terminal to activate the web app 
+>ctrl + click on the local link that appears in the terminal, opening up a python window
 
 (Warning: you must have Flask version 2 or above installed in python3 for the app to run)
 
