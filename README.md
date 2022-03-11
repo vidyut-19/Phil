@@ -38,8 +38,10 @@ Instructions to run:
 2. A Flask-powered web-application that only answers questions relating to course evaluations
 Instructions to run:
 >enter the chatbot_deployment directory
->type "python3 app.py" in the terminal to activate the web app 
->ctrl + click on the local link that appears in the terminal, opening up a python window
+
+>type "python3 app.py" in the terminal to activate the web app
+
+>ctrl + click on the local link that appears in the terminal, opening up a firefox browser window
 
 (Warning: you must have Flask version 2 or above installed in python3 for the app to run)
 
@@ -108,7 +110,7 @@ Please ensure you're running Phil with Mozilla Firefox installed in a Linux envi
 
     *** scraped_data - directory containing all the scraped data used by the project - Max
 
-    *** chatbot-deployment - directory containing fron-end elements for web-app implementation using Flask - Vidyut
+    *** chatbot-deployment - directory containing fron-end elements for web-app implementation using Flask (elements of this module was heavily inspired by python-engineer's youtube video on implementing a Flask-based chatbot)
 
     Disregard
     --------------------------------------------
