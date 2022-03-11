@@ -12,8 +12,8 @@ body {
 }
 
 *, html {
-    --primaryGradient: linear-gradient(93.12deg, #340000 0.52%, #4d0000 100%);
-    --secondaryGradient: linear-gradient(268.91deg, #ffa7a7 -2.14%, #ffbbbb 99.69%);
+    --primaryGradient: linear-gradient(93.12deg, #340000 0.72%, #940000 100%);
+    --secondaryGradient: linear-gradient(268.91deg, #800000 -2.14%, #800000 99.69%);
     --primaryBoxShadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
     --secondaryBoxShadow: 0px -10px 15px rgba(0, 0, 0, 0.1);
     --primary: #800000;
@@ -23,8 +23,8 @@ body {
 =============== */
 .chatbox {
     position: absolute;
-    bottom: 50px;
-    right: 50px;
+    bottom: 25px;
+    right: 25px;
 }
 
 /* CONTENT IS CLOSE */
@@ -36,12 +36,12 @@ body {
     height: 350px;
     z-index: -123456;
     opacity: 0;
-    transition: all .5s ease-in-out;
+    transition: all .3s ease-in-out;
 }
 
 /* CONTENT ISOPEN */
 .chatbox--active {
-    transform: translateY(-40px);
+    transform: translateY(-80px);
     z-index: 123456;
     opacity: 1;
 
@@ -53,11 +53,13 @@ body {
 }
 
 .send__button {
-    padding: 6px;
-    background: transparent;
-    border: none;
-    outline: none;
+    padding: 12px;
+    background: #340000;
+    border: #340000;
+    outline: #340000;
     cursor: pointer;
+    border-radius: 20px;
+
 }
 
 
@@ -98,8 +100,8 @@ body {
 
 .chatbox__support {
     background: #f9f9f9;
-    height: 450px;
-    width: 350px;
+    height: 1000px;
+    width: 700px;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
@@ -174,7 +176,7 @@ body {
 }
 
 .chatbox__footer input {
-    width: 80%;
+    width: 90%;
     border: none;
     padding: 10px 10px;
     border-radius: 30px;

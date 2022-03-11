@@ -2,7 +2,6 @@ import flask
 from flask import Flask, render_template, request, jsonify
 #from flask_cors import CORS
 from sel import get_course_eval
-
 app = Flask(__name__)
 #CORS(app)
 
