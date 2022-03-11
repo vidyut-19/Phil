@@ -1,6 +1,6 @@
-Phil the ChatBot - CS 122 Group Project by Max Huisman, Vidyut Baradwaj, and Omar Khan
+# Phil the ChatBot - CS 122 Group Project by Max Huisman, Vidyut Baradwaj, and Omar Khan
 
-Motivation:
+## Motivation:
 As UChicago students, we are already stressed by the time pre-registration comes around during Week 7. 
 While Academic advisors exist, they're not the most accessible during times of need. So, we felt
 there was a need for an interactive program that answers questions students may have when picking courses,
@@ -10,7 +10,7 @@ It's easier to use than Stellic, easier to reach than your academic advisor, and
 
 Hope you enjoy talking to Phil, just as much as he will talking to you :)
 
-Phil's Capabilities:
+## Phil's Capabilities:
 
     1. Who are the instructors for this course?
     2. Which quarters is this course offered?
@@ -31,7 +31,7 @@ Phil's Capabilities:
 
 
 
-Instructions:
+## Instructions:
 We have implemented two UIs:
 1. An interactive text-based interface that includes all of Phil's functionalites
 Instructions to run:
@@ -47,7 +47,7 @@ Instructions to run:
 
 This is an overview of all the files and directories in CS122-Group-Project
 
-Modules and packages you will need: 
+### Modules and packages you will need: 
 Selenium
 Flask (2 or above)
 Tabulate
@@ -56,7 +56,7 @@ sqlite3
 
 Please ensure you're running Phil with Mozilla Firefox installed in a Linux environment
 
->>> Files - starred (***) items are important to the project:
+## Files - starred (***) items are important to the project:
 
     Crucial to project
     --------------------------------------------
@@ -100,7 +100,7 @@ Please ensure you're running Phil with Mozilla Firefox installed in a Linux envi
  
 
 
->>> Directories - starred (***) items are important to the project.
+## Directories - starred (***) items are important to the project.
     Scroll down to see more in-depth info on *** directories.
 
     Crucial to Project
@@ -118,7 +118,7 @@ Please ensure you're running Phil with Mozilla Firefox installed in a Linux envi
     identify_ques - old directory initially used to develop identify_tasks.py
 
 
->>> More information on - scraping
+### More information on - scraping
 
     Crucial to Project
     --------------------------------------------
@@ -150,7 +150,7 @@ Please ensure you're running Phil with Mozilla Firefox installed in a Linux envi
     check_prereqs.py - obsolete code
 
 
->>> More information on - scraped_data
+### More information on - scraped_data
 
     Crucial to Project
     --------------------------------------------
@@ -163,7 +163,7 @@ Please ensure you're running Phil with Mozilla Firefox installed in a Linux envi
 
     For information on any of the .csv files, look at README.txt in this directory - Max
 
->>> More information on - chatbot_deployment
+### More information on - chatbot_deployment
 
     
 
