@@ -53,7 +53,7 @@ def prerequisites_processed(course):
             string = "The course catalog says this about the prerequisites for " + course + ":\n"
             return (string + text)
     else:
-        return ("I'm sorry, I couldn't recognize the course code: " + course + ".")
+        return ("I'm sorry, either I couldn't recognize the course code: " + course + ", or the course catalog doesn't list any prerequisites for it.")
 
 
 def professors(course):
@@ -87,7 +87,7 @@ def professors_processed(course):
             return string
         elif name != "Unknown":
             string = "The instructor for " + course + " is " + name + "."
-            return string
+            return strings
     else:
         big_lst = []
         small_lst = []
