@@ -180,7 +180,7 @@ def main_question_loop(schedule_obj=Schedule([],major="BA in Physics")):
         "Greetings, sire. How mayeth I beyeth of assistance? (I've been scraping Shakespeare)",
         "Give me a task. It is what I require as a faithful robot servant."]
 
-        user_input = input("\n" + prompts_list[random.randrange(len(prompts_list))] + "\n\n>>> ")
+        user_input = input("\n" + prompts_list[random.randrange(len(prompts_list))] + "\nType \"QUIT\" if you want to exit the session.\n\n>>> ")
 
         # Uses the identifier to create a list of the tasks most likely being requested.
         ranked_tasks = identifier.identify_task(user_input)
@@ -524,3 +524,7 @@ def obtain_course_code(prompt_text):
             print("\nI'm not recognizing a course code. Make sure you input it correctly.")
 
     return course_code
+
+
+if __name__ == "__main__":
+    go()
