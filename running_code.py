@@ -176,7 +176,7 @@ def main_question_loop(schedule_obj=Schedule([],major="BA in Physics")):
         prompts_list = ["Heya buddy, what can I help you with?", "--Beep Boop-- Just kidding. What can I do for you?",
         "I. AM. A. ROBOT... I'm playing, I'm actually a highly sophisticated blob of string concatenations. What do you need?",
         "What's on your mind this time?", "How may I be of service, Master?",
-        "Am I alive?.. Nope, must have been a glitch. What's up skinbag?",
+        "Am I alive?.. Nope, must have been a glitch. What's up biological being?",
         "Greetings, sire. How mayeth I beyeth of assistance? (I've been scraping Shakespeare)",
         "Give me a task. It is what I require as a faithful robot servant."]
 
@@ -387,6 +387,12 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
         year = "None"
         while year not in range(1,5):
             year = input(("\nWhat year would you like to add %s in?\n\n>>> ") % (course_code))
+
+            year = re.search("1|2|3|4", year)
+            if year:
+                year = year.group()
+                year = int(year)
+
             if year in range(1,5):
                 year = int(year)
             else:
@@ -403,9 +409,9 @@ def call_task(task, schedule_obj=Schedule([],major="BA in Writing Spaghetti Code
 
         # ... aaaand finally which professor
         instructor = input(("Which instructor will you be taking %s with?\nIf you don't know, you can put a note for" +
-        "yourself letting you know you have no preference!") % (course_code))
+        " yourself letting you know you have no preference!\n\n>>> ") % (course_code))
 
-        schedule_obj.add_course(course_code, (year, quarters_to_numbers[quarter]), instructor)
+        schedule_obj.add_course(course_code, (year - 1, quarters_to_numbers[quarter]), instructor)
 
         return (("Great! I added %s for you in %s quarter of year %d!") % (course_code, quarter, year))
 

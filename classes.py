@@ -75,12 +75,11 @@ class Schedule:
                 for course_object in semester:
                     if course_object.course_code == rem_course_code:
                         semester.remove(course_object)
-                        break
-                break
-            break
+
 
         # Update courses_acc_for
-        self.courses_acc_for.remove(rem_course_code)
+        if rem_course_code in self.courses_acc_for:
+            self.courses_acc_for.remove(rem_course_code)
 
     def update_major(self, major):
         '''
