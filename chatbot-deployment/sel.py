@@ -4,11 +4,36 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import random
 import json
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
-
-
+#import os
+#import sys
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+#current = os.path.dirname(os.path.realpath(__file__))
+#parent = os.path.dirname(current)
+#sys.path.append(parent)
+#from task_processing import prerequisites, terms, notes, professors
 options = webdriver.FirefoxOptions()
 options.headless = True
+
+
+def get_response(string_input):
+    '''
+    assigns processing function based on given string input
+    '''
+    if len(string_input) > 10:
+        course_code, aspect = tuple(string_input.split(', ')) 
+        #if 'prereq' in aspect:
+        #    return str(prerequisites(course))
+        #elif 'terms' in aspect:
+        #    return str(terms(course))
+        #elif 'notes' in aspect:
+        #   return str(notes(course))
+        #elif 'professors' in aspect:
+            #return str(professors(course))
+        return get_course_eval(course_code, aspect)
+    else:
+        return analyzer(string_input)
+    
+# time permitting, would have rather implemented a JSON that maps questions to respective functions in task_processing instead of multiple if statements
 
 def get_course_eval(course_code, aspect=None):
     '''
@@ -16,11 +41,6 @@ def get_course_eval(course_code, aspect=None):
     Inputs - (str) dept name (XXXX) and course_code (12345)
     Output - comments (dict) mapping attribute of course eval to set of comments (str)
     '''
-
-    exists = terms(course_code)
-
-    if exists == []:
-        return set()
 
     dept_name, course_code = tuple(course_code.split())
 
@@ -60,8 +80,18 @@ def get_course_eval(course_code, aspect=None):
                 comments['additional comments'].update(q.text.split('\n')[3:])
         driver.switch_to.window(driver.window_handles[0])
 
+    driver.close()
+    driver.quit()
     if aspect != None:
-        return comments[aspect]
+        rv = "Comments: \n"
+        str_output = ("\nHere are %d comments I found about %s's \"%s\" aspect:") % (min(len(comments[aspect]), 5), course_code, aspect)
+
+        for i, comment in enumerate(list(comments[aspect])):
+            if i < 4:
+                str_output += ("    " + str(i + 1) + ". " + comment + "\n")
+            else:
+                break
+        return str_output
     else:
         return comments
 

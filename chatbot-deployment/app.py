@@ -1,7 +1,7 @@
 import flask
 from flask import Flask, render_template, request, jsonify
 #from flask_cors import CORS
-from sel import get_course_eval
+from sel import get_response
 app = Flask(__name__)
 #CORS(app)
 
@@ -16,7 +16,7 @@ def predict():
     #response = get_response(user_input)
     text = request.get_json().get("message")
     # error check --> if text is valid
-    response = get_course_eval(text)  # get bot output from back-end
+    response = get_response(text)  # get bot output from back-end
     message = {"answer": response}
     return jsonify(message)
 
