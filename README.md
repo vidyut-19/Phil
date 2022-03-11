@@ -3,9 +3,7 @@
 ## Motivation:
 As UChicago students, we are already stressed by the time pre-registration comes around during Week 7. 
 While Academic advisors exist, they're not the most accessible during times of need. So, we felt
-there was a need for an interactive program that answers questions students may have when picking courses,
-such as what prerequisites a class has, who teaches it, when is it offered, and whether the student fulfills    
-the requirement to complete a given course and what students thought about a particular course among others. 
+there was a need for an interactive program that answers questions students may have when picking courses, such as what prerequisites a class has, who teaches it, when is it offered, and whether the student fulfills the requirement to complete a given a course and what students thought about a particular course among others. 
 It's easier to use than Stellic, easier to reach than your academic advisor, and wittier than anyone you know!
 
 Hope you enjoy talking to Phil, just as much as he will talking to you :)
@@ -45,7 +43,7 @@ Instructions to run:
 
 (Warning: you must have Flask version 2 or above installed in python3 for the app to run)
 
-This is an overview of all the files and directories in CS122-Group-Project
+## This is an overview of all the files and directories in CS122-Group-Project
 
 ### Modules and packages you will need: 
 Selenium
