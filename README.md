@@ -1,4 +1,4 @@
-# Phil the ChatBot - CS 122 Group Project by Max Huisman, Vidyut Baradwaj, and Omar Khan
+# Phil the ChatBot 
 
 ## Motivation:
 As UChicago students, we are already stressed by the time pre-registration comes around during Week 7. 
